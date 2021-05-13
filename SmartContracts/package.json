@@ -1,0 +1,31 @@
+{
+  "name": "SmartContracts",
+  "version": "1.0.0",
+  "description": "Smart Contract Collection",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@truffle/contract": "^4.2.9",
+    "@trust/webcrypto": "^0.9.2",
+    "dotenv": "^8.2.0",
+    "elliptic": "^6.5.3",
+    "ethereum-public-key-to-address": "^0.0.5",
+    "ethers": "^5.0.19",
+    "express": "^4.17.1",
+    "ganache-cli": "^6.12.1",
+    "mocha": "^8.2.1",
+    "solc": "^0.7.4",
+    "truffle": "^5.1.30",
+    "web3": "^1.2.9"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha --timeout 10000",
+    "truffle": "truffle migrate",
+    "truffle-internal": "set DEV_MODE=1&&  truffle migrate --network internal"
+  },
+  "author": "Mastahac Bogdan",
+  "license": "ISC"
+}
