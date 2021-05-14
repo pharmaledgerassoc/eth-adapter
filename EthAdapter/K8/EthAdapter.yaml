@@ -1,0 +1,65 @@
+apiVersion: v1
+
+kind: Pod
+
+metadata:
+  name: ethadapter
+  labels:
+    app: ethadapter
+
+spec:
+  containers:
+    - name: ethadapter-container
+      image: mabdockerid/ethadapter:latest
+      env:
+        - name: RPC_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: ethadapter-configmap
+              key: RPC_ADDRESS
+        - name: SMARTCONTRACTADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: ethadapter-configmap
+              key: SMARTCONTRACTADDRESS
+        - name: SMARTCONTRACTABI
+          valueFrom:
+            configMapKeyRef:
+              key: SMARTCONTRACTABI
+              name: ethadapter-configmap
+        - name: ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              key: address
+              name: eth-adapter-config
+        - name: ACCOUNTPRIVATEKEY
+          valueFrom:
+            secretKeyRef:
+              key: ACCOUNTPRIVATEKEY
+              name: eth-adapter-config
+      ports:
+        - containerPort: 3000
+      imagePullPolicy: Always
+
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ethadapter-service
+  labels:
+    name: ethadapter-service
+
+spec:
+  selector:
+    app: ethadapter
+
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+  type: LoadBalancer
+
+

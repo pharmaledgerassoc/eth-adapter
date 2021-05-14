@@ -9,7 +9,7 @@ RUN cd $TARGET_FOLDER_NAME && \
 RUN cd $TARGET_FOLDER_NAME && \
     npm run build privatesky
 
-WORKDIR /$TARGET_FOLDER_NAME/ethereum-anchoring/ApiAdaptor
+WORKDIR /$TARGET_FOLDER_NAME/ethadapter/EthAdapter
 
 EXPOSE 3000
 

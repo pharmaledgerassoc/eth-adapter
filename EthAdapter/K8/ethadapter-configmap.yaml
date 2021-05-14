@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apiadapter-configmap
+data:
+  RPC_ADDRESS: "http://quorum-node2:8545"
+  SMARTCONTRACTADDRESS: "%SMARTCONTRACTADDRESS%"
+  SMARTCONTRACTABI: "%SMARTCONTRACTABI%"

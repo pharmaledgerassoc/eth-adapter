@@ -45,7 +45,7 @@ function configureHeaders(webServer) {
 
 function configureAddAnchorEntryPoints(webServer, config) {
     const factory = require('./anchoring/anchorFactory');
-    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.account);
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
     const addAnchorHandler = require("./controllers/addAnchor").createAddAnchorHandler(anchorFactory, config.account);
     webServer.use("/addAnchor/*", requestBodyJSONMiddleware);
     webServer.put("/addAnchor/:keySSI", addAnchorHandler);
@@ -53,21 +53,20 @@ function configureAddAnchorEntryPoints(webServer, config) {
 
 function configureGetAnchorVersionsEntryPoints(webServer, config) {
     const factory = require('./anchoring/anchorFactory');
-    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.account);
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
     const getVersionsHandler = require("./controllers/getVersions")(anchorFactory);
     webServer.use("/getAnchorVersions/*", requestBodyJSONMiddleware);
     webServer.get("/getAnchorVersions/:keySSI", getVersionsHandler);
 }
 
 module.exports = function () {
-    //get configuration for the access point and smart contract
-
-    const port = process.env.PORT === undefined ? 3000 : process.env.PORT;
+    const port = 3000;
     const config = require("./utils/config");
     new config((err, result) => {
         if (err)
         {
-            return;
+            console.log(err);
+            process.exit(1);
         }
         const scConfig = result;
         console.log("Configuration file used at runtime : ", scConfig);

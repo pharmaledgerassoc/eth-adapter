@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: apiadapter-configmap
-data:
-  RPC_ADDRESS: "http://172.20.125.174:8545"
-  ACCOUNT: "0x25211bfc3e3d5cc76f79841a0d43dd180c0ee5a7"
-  SMARTCONTRACT_ENDPOINT: "http://172.20.103.210:5000"
