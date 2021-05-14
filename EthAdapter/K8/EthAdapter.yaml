@@ -10,7 +10,7 @@ metadata:
 spec:
   containers:
     - name: ethadapter-container
-      image: mabdockerid/ethadapter:latest
+      image: mabdockerid/pharma-ethadapter:latest
       env:
         - name: RPC_ADDRESS
           valueFrom:
