@@ -9,6 +9,9 @@ RUN cd $TARGET_FOLDER_NAME && \
 RUN cd $TARGET_FOLDER_NAME && \
     npm run build privatesky
 
+RUN cd $TARGET_FOLDER_NAME/ethadapter/EthAdapter && \
+    npm install --unsafe-perm
+
 WORKDIR /$TARGET_FOLDER_NAME/ethadapter/EthAdapter
 
 EXPOSE 3000

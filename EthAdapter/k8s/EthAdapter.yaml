@@ -27,15 +27,10 @@ spec:
             configMapKeyRef:
               key: SMARTCONTRACTABI
               name: ethadapter-configmap
-        - name: ACCOUNT
+        - name: ORGACCOUNT
           valueFrom:
             secretKeyRef:
-              key: address
-              name: eth-adapter-config
-        - name: ACCOUNTPRIVATEKEY
-          valueFrom:
-            secretKeyRef:
-              key: ACCOUNTPRIVATEKEY
+              key: orgAcc.json
               name: eth-adapter-config
       ports:
         - containerPort: 3000

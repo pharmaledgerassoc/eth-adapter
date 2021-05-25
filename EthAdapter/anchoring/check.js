@@ -1,6 +1,6 @@
 function check(anchorFactory, callback) {
 
-    anchorFactory.methods.Check().call().then((invokeResult) => {
+    anchorFactory.methods.check().call().then((invokeResult) => {
         console.log('finished check invoke :', invokeResult);
         callback(undefined,invokeResult);
     }).catch(err => {
