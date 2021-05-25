@@ -3,14 +3,8 @@
 
 
 module.exports = function Config(callback) {
-    if (typeof process.env.RPC_ADDRESS !== "undefined")
-    {
-        console.log('Using env RPC_ADDRESS : ', process.env.RPC_ADDRESS);
-        this.rpcAddress =  process.env.RPC_ADDRESS;
-    }else {
-        return callback(new Error("RPC_ADDRESS not found."))
-    }
 
+    //config map
     if (typeof process.env.SMARTCONTRACTADDRESS !== "undefined")
     {
         console.log('Using env SMARTCONTRACTADDRESS : ', process.env.SMARTCONTRACTADDRESS);
@@ -19,6 +13,7 @@ module.exports = function Config(callback) {
         return callback(new Error("SMARTCONTRACTADDRESS not found."))
     }
 
+    //config map
     if (typeof process.env.SMARTCONTRACTABI !== "undefined")
     {
         console.log('Using env SMARTCONTRACTABI : ', process.env.SMARTCONTRACTABI);
@@ -27,21 +22,30 @@ module.exports = function Config(callback) {
         return callback(new Error("SMARTCONTRACTABI not found."))
     }
 
-    if (typeof process.env.ACCOUNT !== "undefined")
+    //config map
+    if (typeof process.env.RPC_ADDRESS !== "undefined")
     {
-        console.log('Using env ACCOUNT : ', process.env.ACCOUNT);
-        this.account =  process.env.ACCOUNT;
+        console.log('Using env RPC_ADDRESS : ', process.env.RPC_ADDRESS);
+        this.rpcAddress =  process.env.RPC_ADDRESS;
     }else {
-        return callback(new Error("ACCOUNT not found."))
+        return callback(new Error("RPC_ADDRESS not found."))
     }
 
-    if (typeof process.env.ACCOUNTPRIVATEKEY !== "undefined")
+    //secrets - ORGACCOUNT
+    if (typeof process.env.ORGACCOUNT !== "undefined")
     {
-        console.log('Using env ACCOUNTPRIVATEKEY : ', process.env.ACCOUNTPRIVATEKEY);
-        this.accountPrivateKey =  process.env.ACCOUNTPRIVATEKEY;
+        console.log('Using env ORGACCOUNT : ', process.env.ORGACCOUNT)
+        const orgacc = JSON.parse(process.env.ORGACCOUNT);
+        this.account =  orgacc.address;
+        this.accountPrivateKey = orgacc.privateKey;
     }else {
-        return callback(new Error("ACCOUNTPRIVATEKEY not found."))
+        return callback(new Error("RPC_ADDRESS not found."))
     }
+
+
+
+
+
 
     console.log('Finish loading data from env.');
     console.log(this);
