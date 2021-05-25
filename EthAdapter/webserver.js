@@ -59,6 +59,14 @@ function configureGetAnchorVersionsEntryPoints(webServer, config) {
     webServer.get("/getAnchorVersions/:keySSI", getVersionsHandler);
 }
 
+function configureCheckEntryPoints(webServer, config) {
+    const factory = require('./anchoring/anchorFactory');
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
+    const checkHandler = require("./controllers/check")(anchorFactory);
+    webServer.use("/check/*", requestBodyJSONMiddleware);
+    webServer.get("/check", checkHandler);
+}
+
 module.exports = function () {
     const port = 3000;
     const config = require("./utils/config");
@@ -78,7 +86,7 @@ module.exports = function () {
 
         configureAddAnchorEntryPoints(this.webServer, scConfig);
         configureGetAnchorVersionsEntryPoints(this.webServer, scConfig);
-
+        configureCheckEntryPoints(this.webServer, scConfig);
         console.log('Server started. Listening on ', port);
         return this;
     });
