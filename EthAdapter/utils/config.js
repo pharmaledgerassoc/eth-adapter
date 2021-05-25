@@ -39,7 +39,7 @@ module.exports = function Config(callback) {
         this.account =  orgacc.address;
         this.accountPrivateKey = orgacc.privateKey;
     }else {
-        return callback(new Error("RPC_ADDRESS not found."))
+        return callback(new Error("ORGACCOUNT not found."))
     }
 
 
