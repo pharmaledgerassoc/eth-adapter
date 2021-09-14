@@ -6,7 +6,7 @@ function addAnchor(anchorFactory, account,
     //Concurrent transactions
     //https://github.com/ChainSafe/web3.js/issues/1301
     //fixed in 2.0, but is alpha
-    anchorFactory.getTransactionCount(account, (err, count) =>{
+    anchorFactory.getTransactionCount(account,"pending", (err, count) =>{
         if (err){
             console.log('Failed to get the next nonce', err);
             return callback(err);
