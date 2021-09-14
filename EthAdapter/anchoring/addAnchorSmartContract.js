@@ -12,7 +12,7 @@ function addAnchor(anchorFactory, account,
             return callback(err);
         }
         const nextNonce = count;
-
+        console.log('Nonce obtained :', nextNonce);
         console.log('Input for addAnchor smart contract : ',anchorID,controlString,
             newHashLinkSSI, ZKPValue, lastHashLinkSSI,
             signature, publicKey);
