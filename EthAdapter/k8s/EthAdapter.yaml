@@ -10,7 +10,7 @@ metadata:
 spec:
   containers:
     - name: ethadapter-container
-      image: public.ecr.aws/n4q1q0z2/pharmaledger-ethadapter:1.0
+      image: public.ecr.aws/n4q1q0z2/epi:pharmaledger-ethadapter_1.0
       env:
         - name: RPC_ADDRESS
           valueFrom:
