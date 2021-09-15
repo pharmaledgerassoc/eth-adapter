@@ -61,7 +61,7 @@ function createAddAnchorHandler(anchorFactory, account) {
             }
 
 
-            require("../anchoring/addAnchorSmartContract")(anchorFactory.contract, account,
+            require("../anchoring/addAnchorSmartContract")(anchorFactory, account,
                 anchorID, controlSubstring,
                 newHashLinkSSI, zkpValue, lastHashLinkSSI,
                 signature65, prefixedPublicKey,

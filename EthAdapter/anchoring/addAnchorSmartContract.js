@@ -3,13 +3,38 @@ function addAnchor(anchorFactory, account,
                    newHashLinkSSI, ZKPValue, lastHashLinkSSI,
                    signature, publicKey,
                    callback) {
+    //Concurrent transactions
+    //https://github.com/ChainSafe/web3.js/issues/1301
+    //fixed in 2.0, but is alpha
 
+    anchorFactory.web3.eth.getTransactionCount(account,"pending").then(
+        (nonce) => {
+            const nextNonce = nonce;
+            console.log('Nonce obtained :', nextNonce);
+
+            addAnchorInternal(anchorFactory, account,
+                anchorID, controlString,
+                newHashLinkSSI, ZKPValue, lastHashLinkSSI,
+                signature, publicKey,nextNonce, callback);
+        }
+    ).catch((err) => {
+        console.log (err);
+        callback(err, null);
+    });
+
+}
+
+function addAnchorInternal(anchorFactory, account,
+                           anchorID, controlString,
+                           newHashLinkSSI, ZKPValue, lastHashLinkSSI,
+                           signature, publicKey,nextNonce,
+                           callback){
     console.log('Input for addAnchor smart contract : ',anchorID,controlString,
         newHashLinkSSI, ZKPValue, lastHashLinkSSI,
         signature, publicKey);
-    anchorFactory.methods.addAnchor(anchorID, controlString,
+    anchorFactory.contract.methods.addAnchor(anchorID, controlString,
         newHashLinkSSI, ZKPValue, lastHashLinkSSI,
-        signature, publicKey).send({from: account, gas: 1500000}).then((f) => {
+        signature, publicKey).send({from: account, gas: 1500000, nonce: nextNonce}).then((f) => {
         const statusCode = f.events.InvokeStatus.returnValues.statusCode.toString().trim();
         console.log("Smart contract status code : ", statusCode);
         if (statusCode === "200" || statusCode === "201") {
@@ -28,6 +53,7 @@ function addAnchor(anchorFactory, account,
             callback(err, null);
         });
 }
+
 
 
 module.exports = addAnchor;
