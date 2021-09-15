@@ -7,7 +7,7 @@ function addAnchor(anchorFactory, account,
     //https://github.com/ChainSafe/web3.js/issues/1301
     //fixed in 2.0, but is alpha
 
-    anchorFactory.eth.getTransactionCount(account,"pending").then(
+    anchorFactory.web3.eth.getTransactionCount(account,"pending").then(
         (nonce) => {
             const nextNonce = nonce;
             console.log('Nonce obtained :', nextNonce);
