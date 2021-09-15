@@ -275,7 +275,9 @@ contract anchoringSC {
     //utility functions
     function isEmptyBytes32(bytes32 data) private pure returns (bool)
     {
-        return data[0] == 0;
+        //byte32 has fixed length value
+        //some control strings are 0x0000value, so we cannot use data[0] == 0
+        return data == '';
     }
 
 }
