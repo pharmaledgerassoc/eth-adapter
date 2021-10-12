@@ -1,3 +1,5 @@
+global.transactionNonce = -1
+
 function addAnchor(anchorFactory, account,
                    anchorID, controlString,
                    newHashLinkSSI, ZKPValue, lastHashLinkSSI,
@@ -7,15 +9,19 @@ function addAnchor(anchorFactory, account,
     //https://github.com/ChainSafe/web3.js/issues/1301
     //fixed in 2.0, but is alpha
 
-    anchorFactory.web3.eth.getTransactionCount(account,"pending").then(
+    anchorFactory.web3.eth.getTransactionCount(account).then(
         (nonce) => {
-            const nextNonce = nonce;
-            console.log('Nonce obtained :', nextNonce);
+            if (global.transactionNonce === -1){
+                global.transactionNonce = nonce;
+            } else{
+                global.transactionNonce ++;
+            }
+            console.log('Transaction Nonce  :', global.transactionNonce);
 
             addAnchorInternal(anchorFactory, account,
                 anchorID, controlString,
                 newHashLinkSSI, ZKPValue, lastHashLinkSSI,
-                signature, publicKey,nextNonce, callback);
+                signature, publicKey,global.transactionNonce, callback);
         }
     ).catch((err) => {
         console.log (err);
