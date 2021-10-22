@@ -20,5 +20,5 @@
     "start-dev": "node -r dotenv/config index.js"
   },
   "author": "Mastahac Bogdan",
-  "license": "ISC"
+  "license": "MIT"
 }
