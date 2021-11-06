@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: ethadapter-configmap
 data:
-  RPC_ADDRESS: "http://quorum-node1-rpc:8545"
+  RPC_ADDRESS: "http://quorum-node-0-rpc:8545"
   SMARTCONTRACTADDRESS: "%SMARTCONTRACTADDRESS%"
   SMARTCONTRACTABI: '%SMARTCONTRACTABI%'
