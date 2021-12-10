@@ -6,11 +6,11 @@ function getVSignature(signature, publicKey, valueToHash){
     //get account from hash & signature
     const eth = require('ethers');
     const signature1c = signature+'1c';
-    const recoveredEthAddress1c = eth.utils.recoverAddress(hashedValue,signature1c);
+    const recoveredEthAddress1c = eth.utils.recoverAddress(hashedValue,signature1c).toLowerCase();
     //convert publicKey to account
     const ethw = require('ethereumjs-wallet').default;
     const ac = ethw.fromPublicKey(Buffer.from(publicKey,'hex'), true);
-    const ethAccount = ac.getAddressString();
+    const ethAccount = ac.getAddressString().toLowerCase();
     //compare them for v
     if (ethAccount === recoveredEthAddress1c)
     {
