@@ -12,13 +12,13 @@ ENV TARGET_FOLDER_NAME="ePI-workspace"
 RUN git clone https://github.com/PharmaLedger-IMI/epi-workspace.git $TARGET_FOLDER_NAME
 
 RUN cd $TARGET_FOLDER_NAME && \
-    npm install --unsafe-perm --production
+    npm install --unsafe-perm
 
 RUN cd $TARGET_FOLDER_NAME && \
     npm run build privatesky
 
 RUN cd $TARGET_FOLDER_NAME/ethadapter/EthAdapter && \
-    npm install --unsafe-perm
+    npm install --unsafe-perm --production
 
 WORKDIR /$TARGET_FOLDER_NAME/ethadapter/EthAdapter
 
