@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          name: PharmaLedger-IMI/epi-workspace
+          repository: PharmaLedger-IMI/epi-workspace
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
@@ -34,4 +34,4 @@ jobs:
       - run: npm install
         working-directory: SmartContracts
       - run: npm test
-        working-directory: SmartContract
+        working-directory: SmartContracts
