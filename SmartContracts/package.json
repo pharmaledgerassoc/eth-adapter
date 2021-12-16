@@ -9,9 +9,7 @@
   "dependencies": {
     "@truffle/contract": "^4.2.9",
     "@trust/webcrypto": "^0.9.2",
-    "dotenv": "^8.2.0",
     "elliptic": "^6.5.3",
-    "ethereum-public-key-to-address": "^0.0.5",
     "ethers": "^5.0.19",
     "express": "^4.17.1",
     "ganache-cli": "^6.12.1",
