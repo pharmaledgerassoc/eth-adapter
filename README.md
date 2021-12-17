@@ -1,9 +1,6 @@
 # Ethereum Adapter
-Ethereum Adapter will facilitate operations with Smart Contract on Ethereum network.
+[![Ethereum SmartContract Tests](https://github.com/PharmaLedger-IMI/ethadapter/actions/workflows/SmartContractTests.yml/badge.svg)](https://github.com/PharmaLedger-IMI/ethadapter/actions/workflows/SmartContractTests.yml)
 
-# Smart Contracts
-Current available smart contracts : anchoringSC
-
-# anchoringSC Smart contract
-
-The smart contract will handle the anchoring on the Ethereum blockchain network. 
+## Repository Structure
+1. EthAdapter : Ethereum Adapter implementation which will facilitate the operations with the Smart Contract deployed on Ethereum network.
+2. SmartContracts : The anchoringSC smart contract which will handle the anchoring on the Ethereum blockchain network.
