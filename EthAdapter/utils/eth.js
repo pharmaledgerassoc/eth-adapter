@@ -32,8 +32,12 @@ function getVSignature(signature, publicKey, valueToHash){
     throw ('Unable to determine v !');
 }
 
-
+function getV(signature, publicKey, data) {
+    const rsvSignature = getVSignature(signature, publicKey, data);
+    return Number("0x" + rsvSignature.slice(-2));
+}
 
 module.exports = {
-    getVSignature
+    getVSignature,
+    getV
 };
