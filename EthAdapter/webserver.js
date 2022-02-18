@@ -51,6 +51,54 @@ function configureAddAnchorEntryPoints(webServer, config) {
     webServer.put("/addAnchor/:keySSI", addAnchorHandler);
 }
 
+function configureCreateAnchorEntryPoints(webServer, config) {
+    const factory = require('./anchoring/anchorFactory');
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
+    const createAnchorHandler = require("./controllers/createAnchor")(anchorFactory, config.account);
+    webServer.use("/createAnchor/*", requestBodyJSONMiddleware);
+    webServer.put("/createAnchor/:anchorId/:anchorValue", createAnchorHandler);
+}
+
+function configureAppendAnchorEntryPoints(webServer, config) {
+    const factory = require('./anchoring/anchorFactory');
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
+    const appendAnchorHandler = require("./controllers/appendAnchor")(anchorFactory, config.account);
+    webServer.use("/appendAnchor/*", requestBodyJSONMiddleware);
+    webServer.put("/appendAnchor/:anchorId/:anchorValue", appendAnchorHandler);
+}
+
+function configureCreateOrAppendMultipleAnchorsEntryPoints(webServer, config) {
+    const factory = require('./anchoring/anchorFactory');
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
+    const createOrAppendMultipleAnchorsHandler = require("./controllers/createOrAppendMultipleAnchors")(anchorFactory, config.account);
+    webServer.use("/createOrAppendMultipleAnchors/*", requestBodyJSONMiddleware);
+    webServer.put("/createOrAppendMultipleAnchors/*", createOrAppendMultipleAnchorsHandler);
+}
+
+function configureGetAllVersionsEntryPoints(webServer, config) {
+    const factory = require('./anchoring/anchorFactory');
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
+    const getAllVersionsHandler = require("./controllers/getAllVersions")(anchorFactory);
+    webServer.use("/getAllVersions/*", requestBodyJSONMiddleware);
+    webServer.get("/getAllVersions/:anchorId", getAllVersionsHandler);
+}
+
+function configureGetLastVersionEntryPoints(webServer, config) {
+    const factory = require('./anchoring/anchorFactory');
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
+    const getLastVersionHandler = require("./controllers/getLastVersion")(anchorFactory);
+    webServer.use("/getLastVersion/*", requestBodyJSONMiddleware);
+    webServer.get("/getLastVersion/:anchorId", getLastVersionHandler);
+}
+
+function configureTotalNumberOfAnchorsEntryPoints(webServer, config) {
+    const factory = require('./anchoring/anchorFactory');
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
+    const totalNumberOfAnchors = require("./controllers/totalNumberOfAnchors")(anchorFactory);
+    webServer.use("/totalNumberOfAnchors/*", requestBodyJSONMiddleware);
+    webServer.get("/totalNumberOfAnchors/*", totalNumberOfAnchors);
+}
+
 function configureGetAnchorVersionsEntryPoints(webServer, config) {
     const factory = require('./anchoring/anchorFactory');
     const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
@@ -87,6 +135,12 @@ module.exports = function () {
         configureAddAnchorEntryPoints(this.webServer, scConfig);
         configureGetAnchorVersionsEntryPoints(this.webServer, scConfig);
         configureCheckEntryPoints(this.webServer, scConfig);
+        configureCreateAnchorEntryPoints(this.webServer, scConfig);
+        configureAppendAnchorEntryPoints(this.webServer, scConfig);
+        configureCreateOrAppendMultipleAnchorsEntryPoints(this.webServer, scConfig);
+        configureGetAllVersionsEntryPoints(this.webServer, scConfig);
+        configureGetLastVersionEntryPoints(this.webServer, scConfig);
+        configureTotalNumberOfAnchorsEntryPoints(this.webServer, scConfig);
         console.log('Server started. Listening on ', port);
         return this;
     });
