@@ -1,7 +1,8 @@
 const assert = require('assert');
 const ganache = require('ganache-cli');
 const Web3 = require('web3');
-const web3 = new Web3(ganache.provider());
+const options = { gasLimit: 8000000000 };
+const web3 = new Web3(ganache.provider(options));
 
 //opendsu
 require("../../../privatesky/psknode/bundles/openDSU");
@@ -18,7 +19,7 @@ let contractConnection;
 let contract;
 let contractResult;
 let accounts;
-let estimatedGas = 30000000;
+let estimatedGas = 300000000;
 
 function printErrors(compileRes, showWarnings = false) {
     if (!compileRes) {
@@ -77,6 +78,24 @@ beforeEach(async () => {
 
 describe('AnchoringTest', () => {
 
+    it('getVersionsForNonExistentAnchor', async () => {
+
+        const DOMAIN = 'default';
+        const keySSISpace = opendsu.loadApi("keyssi");
+        const seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(DOMAIN, 'v0', 'hint');
+        // const publicKeyRaw = seedSSI.getPublicKey("raw");
+        const anchorSSI = keySSISpace.parse(seedSSI.getAnchorId());
+        const anchorID = anchorSSI.getIdentifier(true);
+
+        try {
+            const anchors = await contractResult.methods.getAllVersions(anchorID).call();
+            console.log(anchors)
+            assert.equal(anchors.length, 0);
+        } catch (e) {
+            console.log("Error at encoding", e)
+        }
+    });
+
     it('createAnchorAndGetVersion', async () => {
 
         const DOMAIN = 'default';
@@ -94,7 +113,8 @@ describe('AnchoringTest', () => {
         const signatureHex = "0x" + signature.toString("hex");
         const newSignedHashLinkSSI = keySSISpace.createSignedHashLinkSSI(DOMAIN, brickMapHash, timestamp, {signature: signature.toString("base64")});
         const signedHLSSI = newSignedHashLinkSSI.getIdentifier(true);
-
+        console.log(anchorSSI.getIdentifier())
+        console.log(newSignedHashLinkSSI.getIdentifier())
         let v = eth.getV(signatureHex, Buffer.from(publicKey, "base64").toString("hex"), dataToSign);
 
         let result;
@@ -112,12 +132,13 @@ describe('AnchoringTest', () => {
             }
 
             const anchors = await contractResult.methods.getAllVersions(anchorID).call();
+            console.log(anchors)
             assert.equal(anchors.length, 1);
-            assert.equal(anchors[0], signedHLSSI);
+            // assert.equal(anchors[0], signedHLSSI);
         } catch (e) {
             console.log("Error at encoding", e)
         }
-    });
+    }).timeout(100000);
     it('appendAnchorAndGetVersions', async () => {
 
         const DOMAIN = 'default';
@@ -177,11 +198,11 @@ describe('AnchoringTest', () => {
             console.log(totalNoAnchors);
             assert.equal(totalNoAnchors, 1);
 
-            const listAnchors = await contractResult.methods.listAnchors(0, 1, 1000).call();
+            const listAnchors = await contractResult.methods.dumpAnchors(0, 1, 1000).call();
             console.log(listAnchors);
             assert.equal(listAnchors.length, 1);
             assert.equal(listAnchors[0].anchorId, anchorID);
-            assert.equal(listAnchors[0].anchorValue, signedHLSSI1);
+            assert.equal(listAnchors[0].anchorValues[1], signedHLSSI1);
         } catch (e) {
             console.log("Error at encoding", e)
         }
@@ -191,7 +212,7 @@ describe('AnchoringTest', () => {
 
         const DOMAIN = 'default';
         const keySSISpace = opendsu.loadApi("keyssi");
-        let NO_ANCHORS = 6;
+        let NO_ANCHORS = 10;
         let anchors = '';
         let anchorsArray = []
         for (let i = 0; i < NO_ANCHORS; i++) {
@@ -246,200 +267,4 @@ describe('AnchoringTest', () => {
             console.log("Error at encoding", e)
         }
     }).timeout(100000);
-
-
-    it('convertBytesToUInt', async () => {
-        const timestamp = 123;
-        console.log(timestamp)
-        const stringTimestamp = timestamp.toString(10);
-        const bytes = "0x" + Buffer.from(stringTimestamp).toString("hex");
-        let result;
-        try {
-
-
-            const command = await contractResult.methods.convertBytesToUInt(bytes);
-            try {
-                result = await command.send({
-                    from: accounts[0],
-                    gas: estimatedGas
-                });
-
-                console.log(result.events.UIntResult.returnValues.str);
-
-            } catch (e) {
-                console.log("Error at sending data to smart contract", e)
-            }
-
-        } catch (e) {
-            console.log("Error at encoding", e)
-        }
-    });
-
-    it('testGetLastTransferSSI', async () => {
-        const DOMAIN = 'default';
-        const keySSISpace = opendsu.loadApi("keyssi");
-        const seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(DOMAIN, 'v0', 'hint');
-        const anchorSSI = keySSISpace.parse(seedSSI.getAnchorId());
-        const anchorID = anchorSSI.getIdentifier(true);
-        let result;
-        try {
-
-            const command = await contractResult.methods.testGetLastTransferSSI(anchorID);
-            try {
-                result = await command.send({
-                    from: accounts[0],
-                    gas: estimatedGas
-                });
-
-                console.log(result.events.StringResult.returnValues.str);
-                assert.equal("", result.events.StringResult.returnValues.str)
-
-            } catch (e) {
-                console.log("Error at sending data to smart contract", e)
-            }
-
-        } catch (e) {
-            console.log("Error at encoding", e)
-        }
-    });
-
-    it('getTimestampFromAnchorValue', async () => {
-        const DOMAIN = 'default';
-        const keySSISpace = opendsu.loadApi("keyssi");
-        const seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(DOMAIN, 'v0', 'hint');
-        const anchorSSI = keySSISpace.parse(seedSSI.getAnchorId());
-        const anchorID = anchorSSI.getIdentifier(true);
-        const crypto = opendsu.loadAPI("crypto");
-        const timestamp = Date.now();
-        const brickMapHash = "hash";
-        const dataToSign = anchorID + brickMapHash;
-        const signature = await $$.promisify(crypto.sign)(seedSSI, dataToSign);
-        const newSignedHashLinkSSI = keySSISpace.createSignedHashLinkSSI(DOMAIN, brickMapHash, timestamp, {signature: signature.toString("base64")});
-        const signedHLSSI = newSignedHashLinkSSI.getIdentifier(true);
-        let result;
-        try {
-
-            const command = await contractResult.methods.testGetTimestampFromAnchorValue(signedHLSSI);
-            try {
-                result = await command.send({
-                    from: accounts[0],
-                    gas: estimatedGas
-                });
-
-                console.log(result.events.UIntResult.returnValues.str);
-                assert.equal(timestamp, result.events.UIntResult.returnValues.str)
-
-            } catch (e) {
-                console.log("Error at sending data to smart contract", e)
-            }
-
-        } catch (e) {
-            console.log("Error at encoding", e)
-        }
-    });
-
-    it('isTransfer', async () => {
-        const DOMAIN = 'default';
-        const keySSISpace = opendsu.loadApi("keyssi");
-        const seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(DOMAIN, 'v0', 'hint');
-        const anchorSSI = keySSISpace.parse(seedSSI.getAnchorId());
-        const anchorID = anchorSSI.getIdentifier(true);
-        const crypto = opendsu.loadAPI("crypto");
-        const timestamp = Date.now();
-        const brickMapHash = "hash";
-        const dataToSign = anchorID + brickMapHash;
-        const signature = await $$.promisify(crypto.sign)(seedSSI, dataToSign);
-        const newTransferSSI = keySSISpace.createTransferSSI(DOMAIN, brickMapHash, timestamp, {signature: signature.toString("base64")});
-        const transferSSI = newTransferSSI.getIdentifier(true);
-        const newSignedHashLinkSSI = keySSISpace.createSignedHashLinkSSI(DOMAIN, brickMapHash, timestamp, {signature: signature.toString("base64")});
-        const newHLSSI = newSignedHashLinkSSI.getIdentifier(true);
-        let result;
-        try {
-
-            let command = await contractResult.methods.testIsTransfer(transferSSI);
-            try {
-                result = await command.send({
-                    from: accounts[0],
-                    gas: estimatedGas
-                });
-
-                console.log(result.events.BoolResult.returnValues.str);
-                assert.equal(true, result.events.BoolResult.returnValues.str)
-
-            } catch (e) {
-                console.log("Error at sending data to smart contract", e)
-            }
-
-            command = await contractResult.methods.testIsTransfer("ssi:shl:domain:specific:control:v0:hint");
-            try {
-                result = await command.send({
-                    from: accounts[0],
-                    gas: estimatedGas
-                });
-
-                console.log(result.events.BoolResult.returnValues.str);
-                assert.equal(false, result.events.BoolResult.returnValues.str)
-
-            } catch (e) {
-                console.log("Error at sending data to smart contract", e)
-            }
-
-        } catch (e) {
-            console.log("Error at encoding", e)
-        }
-    });
-
-    it('verify', async () => {
-
-        const DOMAIN = 'default';
-        const keySSISpace = opendsu.loadApi("keyssi");
-        const seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(DOMAIN, 'v0', 'hint');
-        // const publicKeyRaw = seedSSI.getPublicKey("raw");
-        const anchorSSI = keySSISpace.parse(seedSSI.getAnchorId());
-        const anchorID = anchorSSI.getIdentifier(true);
-        const crypto = opendsu.loadAPI("crypto");
-        const publicKey = anchorSSI.getControlString();
-        const timestamp = Date.now() + '';
-        const brickMapHash = "hash";
-        //sign(hash(anchorId, hash Brick Map, lastEntryInAnchor, timestamp), privateKey Owner)
-        // const dataToSign = require("crypto").createHash("sha256").update(anchorID+brickMapHash).digest();
-        const dataToSign = anchorID + brickMapHash;
-        // console.log("0x"+dataToSign.toString("hex"))
-        const signature = await $$.promisify(crypto.sign)(seedSSI, dataToSign);
-        const signatureHex = "0x" + signature.toString("hex");
-        const newSignedHashLinkSSI = keySSISpace.createSignedHashLinkSSI(DOMAIN, brickMapHash, timestamp, {signature: signature.toString("base64")});
-        const signedHLSSI = newSignedHashLinkSSI.getIdentifier(true);
-
-        // const verificationRes = await $$.promisify(crypto.verifySignature)(seedSSI, dataToSign, signature, Buffer.from(publicKey, "base64"));
-        // console.log(anchorID);
-        // console.log(Buffer.from(anchorSSI.getControlString(), "base64").toString("hex"))
-        // console.log(signedHLSSI);
-        let v = eth.getV(signatureHex, Buffer.from(publicKey, "base64").toString("hex"), dataToSign);
-        let result;
-        try {
-
-            const command = await contractResult.methods.testValidateSignature(anchorID, signedHLSSI, v);
-            try {
-                result = await command.send({
-                    from: accounts[0],
-                    gas: estimatedGas
-                });
-
-                console.log(signatureHex);
-                // console.log(result.events.Result.returnValues.str);
-                // console.log(result.events.UIntResult.returnValues.str);
-                // console.log(result.events.Bytes32Result.returnValues.str);
-                console.log(result.events.BoolResult.returnValues.str);
-                // const expectedEncoding = Buffer.Buffer.from(testString).toString("base64");
-                // assert.equal(Buffer.Buffer.from(result.events.Result.returnValues.str.slice(2), "hex").toString(), expectedEncoding);
-
-            } catch (e) {
-                console.log("Error at sending data to smart contract", e)
-            }
-
-        } catch (e) {
-            console.log("Error at encoding", e)
-        }
-    });
-
 });
