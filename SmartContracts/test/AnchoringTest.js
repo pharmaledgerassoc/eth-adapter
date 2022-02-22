@@ -1,7 +1,7 @@
 const assert = require('assert');
 const ganache = require('ganache-cli');
 const Web3 = require('web3');
-const options = { gasLimit: 8000000000 };
+const options = {gasLimit: 8000000000};
 const web3 = new Web3(ganache.provider(options));
 
 //opendsu
@@ -108,15 +108,21 @@ describe('AnchoringTest', () => {
         const publicKey = anchorSSI.getControlString();
         const timestamp = Date.now() + '';
         const brickMapHash = "hash";
-        const dataToSign = anchorID + brickMapHash;
+        const dataToSign = anchorID + brickMapHash + timestamp;
         const signature = await $$.promisify(crypto.sign)(seedSSI, dataToSign);
         const signatureHex = "0x" + signature.toString("hex");
         const newSignedHashLinkSSI = keySSISpace.createSignedHashLinkSSI(DOMAIN, brickMapHash, timestamp, {signature: signature.toString("base64")});
         const signedHLSSI = newSignedHashLinkSSI.getIdentifier(true);
+        console.log("dataToSign", dataToSign);
+        console.log("publicKey hex", Buffer.from(publicKey, "base64").toString("hex"));
+        console.log("signature", signatureHex);
         console.log(anchorSSI.getIdentifier())
         console.log(newSignedHashLinkSSI.getIdentifier())
         let v = eth.getV(signatureHex, Buffer.from(publicKey, "base64").toString("hex"), dataToSign);
-
+        console.log("anchorID", anchorID);
+        console.log("newAnchorValue", signedHLSSI);
+        console.log("v", v);
+        console.log("hash", crypto.sha256JOSE(dataToSign).toString("hex"))
         let result;
         try {
             let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI, v);
@@ -149,15 +155,16 @@ describe('AnchoringTest', () => {
         const anchorID = anchorSSI.getIdentifier(true);
         const crypto = opendsu.loadAPI("crypto");
         const publicKey = anchorSSI.getControlString();
-        const timestamp = Date.now() + '';
+        let timestamp = Date.now() + '';
         let brickMapHash = "hash1";
-        let dataToSign = anchorID + brickMapHash;
+        let dataToSign = anchorID + brickMapHash + timestamp;
         let signature = await $$.promisify(crypto.sign)(seedSSI, dataToSign);
         let signatureHex = "0x" + signature.toString("hex");
         let signedHashLinkSSI1 = keySSISpace.createSignedHashLinkSSI(DOMAIN, brickMapHash, timestamp, {signature: signature.toString("base64")});
         let signedHLSSI1 = signedHashLinkSSI1.getIdentifier(true);
         let v = eth.getV(signatureHex, Buffer.from(publicKey, "base64").toString("hex"), dataToSign);
-
+        console.log(anchorSSI.getIdentifier());
+        console.log(signedHashLinkSSI1.getIdentifier());
         let result;
         try {
             let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI1, v);
@@ -168,11 +175,15 @@ describe('AnchoringTest', () => {
                 });
 
                 brickMapHash = "hash2"
-                dataToSign = anchorID + brickMapHash + signedHLSSI1;
+                timestamp = Date.now();
+                dataToSign = anchorID + brickMapHash + signedHLSSI1 + timestamp;
                 signature = await $$.promisify(crypto.sign)(seedSSI, dataToSign);
                 signatureHex = "0x" + signature.toString("hex");
-                signedHashLinkSSI1 = keySSISpace.createSignedHashLinkSSI(DOMAIN, brickMapHash, Date.now(), {signature: signature.toString("base64")});
+                console.log("data to sign", dataToSign);
+                console.log("signature", signatureHex)
+                signedHashLinkSSI1 = keySSISpace.createSignedHashLinkSSI(DOMAIN, brickMapHash, timestamp, {signature: signature.toString("base64")});
                 signedHLSSI1 = signedHashLinkSSI1.getIdentifier(true);
+                console.log(signedHashLinkSSI1.getIdentifier());
                 v = eth.getV(signatureHex, Buffer.from(publicKey, "base64").toString("hex"), dataToSign);
 
                 assert.equal(result.events.InvokeStatus.returnValues.statusCode, 200);
@@ -215,6 +226,7 @@ describe('AnchoringTest', () => {
         let NO_ANCHORS = 10;
         let anchors = '';
         let anchorsArray = []
+        let anchorsObjArr = [];
         for (let i = 0; i < NO_ANCHORS; i++) {
             const seedSSI = await $$.promisify(keySSISpace.createSeedSSI)(DOMAIN, 'v0', 'hint');
             // const publicKeyRaw = seedSSI.getPublicKey("raw");
@@ -224,23 +236,22 @@ describe('AnchoringTest', () => {
             const publicKey = anchorSSI.getControlString();
             const timestamp = Date.now() + '';
             let brickMapHash = "hash1";
-            let dataToSign = anchorID + brickMapHash;
+            let dataToSign = anchorID + brickMapHash + timestamp;
             let signature = await $$.promisify(crypto.sign)(seedSSI, dataToSign);
             let signatureHex = "0x" + signature.toString("hex");
             let signedHashLinkSSI1 = keySSISpace.createSignedHashLinkSSI(DOMAIN, brickMapHash, timestamp, {signature: signature.toString("base64")});
             let signedHLSSI1 = signedHashLinkSSI1.getIdentifier(true);
             let v = eth.getV(signatureHex, Buffer.from(publicKey, "base64").toString("hex"), dataToSign);
-            console.log(anchorID, signedHLSSI1);
-            anchors += `${anchorID},${signedHLSSI1},${v.toString(10)}`
             anchorsArray.push(anchorID);
             anchorsArray.push(signedHLSSI1);
             anchorsArray.push(v.toString(10));
-            if (i < NO_ANCHORS - 1) {
-                anchors += " ";
-            }
+            anchorsObjArr.push({
+                anchorId:anchorID,
+                anchorValue: signedHLSSI1
+            })
         }
 
-
+        console.log(anchorsObjArr);
         let result;
         try {
             let command = await contractResult.methods.createOrUpdateMultipleAnchors(anchorsArray);

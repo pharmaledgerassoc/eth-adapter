@@ -1,5 +1,23 @@
 const ethUtils = require("../utils/eth");
 const {parseSSI, errorWrapper} = require("../utils/opendsuutils");
+const getAllVersionsSmartContract = require("./getAllVersionsSmartContract");
+
+function promisify(fn, instance) {
+    return function (...args) {
+        return new Promise((resolve, reject) => {
+            if (instance) {
+                fn = fn.bind(instance);
+            }
+            fn(...args, (err, ...res) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(...res);
+                }
+            });
+        });
+    };
+}
 
 function getLastTransferSSI(versions) {
     for (let i = versions.length - 1; i >= 0; i--) {
@@ -27,12 +45,12 @@ function getPublicKey(anchorId, versions) {
 }
 
 async function getV(anchorFactory, anchorId, newAnchorValue) {
-    let versions = await anchorFactory.contract.methods.getAllVersions(anchorId).call();
+    let versions = await promisify(getAllVersionsSmartContract)(anchorFactory.contract, anchorId);
     if (typeof newAnchorValue === "string") {
         newAnchorValue = parseSSI(newAnchorValue);
     }
-    let publicKey = "0x" + getPublicKey(anchorId, versions).toString("hex");
-    let signature = "0x" + newAnchorValue.getSignature().toString("hex");
+    let publicKey = getPublicKey(anchorId, versions).toString("hex");
+    let signature = "0x" + newAnchorValue.getSignature("raw").toString("hex");
     let lastVersion = versions[versions.length - 1];
     let dataToSign = newAnchorValue.getDataToSign(anchorId, lastVersion);
     return ethUtils.getV(signature, publicKey, dataToSign);
@@ -44,7 +62,7 @@ function createOrAppendToAnchor(anchorFactory, account, anchorID, newAnchorValue
         anchorID = parseSSI(anchorID).getIdentifier(true);
         newAnchorValue = parseSSI(newAnchorValue).getIdentifier(true);
         anchorFactory.contract.methods[operation](anchorID, newAnchorValue, v)
-            .send({from: account, gas: 1500000, nonce: nextNonce}).then((f) => {
+            .send({from: account, gas: 30000000, nonce: nextNonce}).then((f) => {
             const statusCode = f.events.InvokeStatus.returnValues.statusCode.toString().trim();
             console.log("Smart contract status code : ", statusCode);
             if (statusCode === "200" || statusCode === "201") {
@@ -77,8 +95,8 @@ function appendAnchor(anchorFactory, account, anchorID, newAnchorValue, nextNonc
 async function createMultipleAnchorsInput(anchorFactory, anchors) {
     const res = [];
     for (let i = 0; i < anchors.length; i++) {
-        let anchorId = parseSSI(Object.keys(anchors[0])[0]);
-        const newAnchorValue = parseSSI(Object.values(anchors[0])[0]);
+        let anchorId = parseSSI(anchors[i].anchorId);
+        const newAnchorValue = parseSSI(anchors[i].anchorValue);
         const v = await getV(anchorFactory, anchorId, newAnchorValue);
         res.push(anchorId.getIdentifier(true));
         res.push(newAnchorValue.getIdentifier(true));
@@ -88,10 +106,10 @@ async function createMultipleAnchorsInput(anchorFactory, anchors) {
     return res;
 }
 
-function createOrAppendMultipleAnchors(anchorFactory, account, anchors, nextNonce, callback) {
+function createOrUpdateMultipleAnchors(anchorFactory, account, anchors, nextNonce, callback) {
     createMultipleAnchorsInput(anchorFactory, anchors).then(input => {
-        anchorFactory.contract.methods.createOrAppendMultipleAnchors(input)
-            .send({from: account, gas: 1500000, nonce: nextNonce}).then((f) => {
+        anchorFactory.contract.methods.createOrUpdateMultipleAnchors(input)
+            .send({from: account, gas: 30000000, nonce: nextNonce}).then((f) => {
             const statusCode = f.events.InvokeStatus.returnValues.statusCode.toString().trim();
             console.log("Smart contract status code : ", statusCode);
             if (statusCode === "200" || statusCode === "201") {
@@ -102,7 +120,6 @@ function createOrAppendMultipleAnchors(anchorFactory, account, anchors, nextNonc
             }
         })
             .catch(err => {
-                console.log({anchorID, newAnchorValue, account});
                 console.log(err);
                 callback(err, null);
             });
@@ -116,5 +133,5 @@ module.exports = {
     createAnchor,
     appendAnchor,
     getV,
-    createOrAppendMultipleAnchors
+    createOrUpdateMultipleAnchors
 }

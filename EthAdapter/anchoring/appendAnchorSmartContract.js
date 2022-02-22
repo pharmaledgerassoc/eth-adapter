@@ -1,5 +1,5 @@
 global.transactionNonce = -1
-const utils = require("utils");
+const utils = require("./utils");
 
 function appendAnchor(anchorFactory, account, anchorID, newAnchorValue, callback) {
     //Concurrent transactions

@@ -70,9 +70,9 @@ function configureAppendAnchorEntryPoints(webServer, config) {
 function configureCreateOrAppendMultipleAnchorsEntryPoints(webServer, config) {
     const factory = require('./anchoring/anchorFactory');
     const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
-    const createOrAppendMultipleAnchorsHandler = require("./controllers/createOrAppendMultipleAnchors")(anchorFactory, config.account);
+    const createOrUpdateMultipleAnchorsHandler = require("./controllers/createOrUpdateMultipleAnchors")(anchorFactory, config.account);
     webServer.use("/createOrAppendMultipleAnchors/*", requestBodyJSONMiddleware);
-    webServer.put("/createOrAppendMultipleAnchors/*", createOrAppendMultipleAnchorsHandler);
+    webServer.put("/createOrAppendMultipleAnchors/*", createOrUpdateMultipleAnchorsHandler);
 }
 
 function configureGetAllVersionsEntryPoints(webServer, config) {
@@ -97,6 +97,14 @@ function configureTotalNumberOfAnchorsEntryPoints(webServer, config) {
     const totalNumberOfAnchors = require("./controllers/totalNumberOfAnchors")(anchorFactory);
     webServer.use("/totalNumberOfAnchors/*", requestBodyJSONMiddleware);
     webServer.get("/totalNumberOfAnchors/*", totalNumberOfAnchors);
+}
+
+function configureDumpAnchorsEntryPoints(webServer, config) {
+    const factory = require('./anchoring/anchorFactory');
+    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
+    const dumpAnchors = require("./controllers/dumpAnchors")(anchorFactory);
+    webServer.use("/dumpAnchors/*", requestBodyJSONMiddleware);
+    webServer.get("/dumpAnchors/*", dumpAnchors);
 }
 
 function configureGetAnchorVersionsEntryPoints(webServer, config) {
@@ -141,6 +149,7 @@ module.exports = function () {
         configureGetAllVersionsEntryPoints(this.webServer, scConfig);
         configureGetLastVersionEntryPoints(this.webServer, scConfig);
         configureTotalNumberOfAnchorsEntryPoints(this.webServer, scConfig);
+        configureDumpAnchorsEntryPoints(this.webServer, scConfig);
         console.log('Server started. Listening on ', port);
         return this;
     });

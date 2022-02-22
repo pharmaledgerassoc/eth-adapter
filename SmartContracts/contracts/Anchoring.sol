@@ -78,8 +78,9 @@ contract Anchoring {
         bytes[] memory newAnchorValueComponents = parseSSI(newAnchorValue);
         bytes memory signature = getSignatureFromAnchorValue(newAnchorValueComponents);
         string memory brickMapHash = string(newAnchorValueComponents[3]);
+        string memory timestamp = getTimestampFromAnchorValue(newAnchorValueComponents);
         if (anchorValues[anchorId].length == 0) {
-            if (!validateSignature(anchorId, brickMapHash, "", signature, v, publicKey)) {
+            if (!validateSignature(anchorId, brickMapHash, "", timestamp, signature, v, publicKey)) {
                 return false;
             }
 
@@ -93,7 +94,7 @@ contract Anchoring {
             return false;
         }
 
-        if (!validateSignature(anchorId, brickMapHash, lastAnchorValue, signature, v, publicKey)) {
+        if (!validateSignature(anchorId, brickMapHash, lastAnchorValue, timestamp, signature, v, publicKey)) {
             return false;
         }
 
@@ -218,8 +219,8 @@ contract Anchoring {
     }
 
     function validateTimestamp(bytes[] memory newAnchorValueComponents, bytes[] memory lastAnchorValueComponents) private returns (bool){
-        uint anchorValueTimestamp = getTimestampFromAnchorValue(newAnchorValueComponents);
-        uint lastAnchorValueTimestamp = getTimestampFromAnchorValue(lastAnchorValueComponents);
+        uint anchorValueTimestamp = getTimestampFromAnchorValueAsUInt(newAnchorValueComponents);
+        uint lastAnchorValueTimestamp = getTimestampFromAnchorValueAsUInt(lastAnchorValueComponents);
         if (anchorValueTimestamp < lastAnchorValueTimestamp) {
             return false;
         }
@@ -236,10 +237,15 @@ contract Anchoring {
         return number;
     }
 
-    function getTimestampFromAnchorValue(bytes[] memory ssiComponents) private returns (uint){
+    function getTimestampFromAnchorValue(bytes[] memory ssiComponents) private returns (string memory){
         bytes memory control = ssiComponents[4];
         bytes[] memory split = splitString(string(control), 0x7c);
-        return convertBytesToUInt(split[0]);
+        return string(split[0]);
+    }
+
+    function getTimestampFromAnchorValueAsUInt(bytes[] memory ssiComponents) private returns (uint){
+        string memory timestamp = getTimestampFromAnchorValue(ssiComponents);
+        return convertBytesToUInt(bytes(timestamp));
     }
 
     function isTransfer(string memory ssi) private returns (bool){
@@ -396,28 +402,28 @@ contract Anchoring {
         return res;
     }
 
-    function validateSignature(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, bytes memory signature, uint8 v, bytes memory publicKey) private returns (bool) {
-        bool res = calculateAddress(publicKey) == getAddressFromHashAndSig(anchorId, brickMapHash, lastAnchorValue, signature, v);
+    function validateSignature(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, string memory timestamp, bytes memory signature, uint8 v, bytes memory publicKey) private returns (bool) {
+        bool res = calculateAddress(publicKey) == getAddressFromHashAndSig(anchorId, brickMapHash, lastAnchorValue, timestamp, signature, v);
         if (!res) {
-            res = sha256(abi.encodePacked(publicKey)) == sha256(abi.encodePacked(getAddressFromHashAndSig(anchorId, brickMapHash, lastAnchorValue, signature, v)));
+            res = sha256(abi.encodePacked(publicKey)) == sha256(abi.encodePacked(getAddressFromHashAndSig(anchorId, brickMapHash, lastAnchorValue, timestamp, signature, v)));
         }
         return res;
     }
 
-    function getAddressFromHashAndSig(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, bytes memory signature, uint8 v) private returns (address)
+    function getAddressFromHashAndSig(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, string memory timestamp, bytes memory signature, uint8 v) private returns (address)
     {
         //return the public key derivation
 
-        return recover(getHashToBeChecked(anchorId, brickMapHash, lastAnchorValue), signature, v);
+        return recover(getHashToBeChecked(anchorId, brickMapHash, lastAnchorValue, timestamp), signature, v);
     }
 
-    function getHashToBeChecked(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue) private returns (bytes32)
+    function getHashToBeChecked(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, string memory timestamp) private returns (bytes32)
     {
         //use abi.encodePacked to not pad the inputs
         if (keccak256(bytes(lastAnchorValue)) == keccak256(bytes(""))) {
-            return sha256(abi.encodePacked(anchorId, brickMapHash));
+            return sha256(abi.encodePacked(anchorId, brickMapHash, timestamp));
         } else {
-            return sha256(abi.encodePacked(anchorId, brickMapHash, lastAnchorValue));
+            return sha256(abi.encodePacked(anchorId, brickMapHash, lastAnchorValue, timestamp));
         }
     }
     // calculate the ethereum like address starting from the public key

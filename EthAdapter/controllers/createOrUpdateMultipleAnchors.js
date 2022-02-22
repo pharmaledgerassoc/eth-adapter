@@ -5,8 +5,7 @@ function createOrAppendMultipleAnchorsHandler(anchorFactory, account) {
         const body = request.body;
         console.log("body received : ", body);
 
-        require("../anchoring/createOrAppendMultipleAnchorsSmartContract")(anchorFactory, account,
-            anchorID,
+        require("../anchoring/createOrUpdateMultipleAnchorsSmartContract")(anchorFactory, account,
             body,
             (err, result) => {
 
