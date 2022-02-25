@@ -10,6 +10,7 @@ contract Anchoring {
     uint constant statusTimestampOrSignatureCheckFailed = 104;
     uint constant statusCannotCreateExistingAnchor = 105;
     uint constant statusCannotAppendToNonExistentAnchor = 106;
+    uint constant statusCannotAppendConstAnchor = 107;
 
     event InvokeStatus(uint indexed statusCode);
 
@@ -57,12 +58,13 @@ contract Anchoring {
     string[] indexedAnchors;
 
     function createAnchor(string memory anchorId, string memory newAnchorValue, uint8 v) public {
+        bytes[] memory anchorIdComponents = parseSSI(anchorId);
         if (anchorValues[anchorId].length > 0) {
             emit InvokeStatus(statusCannotCreateExistingAnchor);
             return;
         }
 
-        if (!validateAnchorValue(anchorId, newAnchorValue, v)) {
+        if (!validateAnchorValue(anchorIdComponents, anchorId, newAnchorValue, v)) {
             emit InvokeStatus(statusSignatureCheckFailed);
             return;
         }
@@ -72,8 +74,12 @@ contract Anchoring {
         emit InvokeStatus(statusOK);
     }
 
-    function validateAnchorValue(string memory anchorId, string memory newAnchorValue, uint8 v) private returns (bool) {
-        bytes memory publicKey = getPublicKey(anchorId);
+    function validateAnchorValue(bytes[] memory anchorIdComponents, string memory anchorId, string memory newAnchorValue, uint8 v) private returns (bool) {
+        if (isConstSSI(anchorIdComponents)) {
+            return true;
+        }
+
+        bytes memory publicKey = getPublicKey(anchorIdComponents, anchorId);
 
         bytes[] memory newAnchorValueComponents = parseSSI(newAnchorValue);
         bytes memory signature = getSignatureFromAnchorValue(newAnchorValueComponents);
@@ -102,12 +108,19 @@ contract Anchoring {
     }
 
     function appendAnchor(string memory anchorId, string memory newAnchorValue, uint8 v) public {
+        bytes[] memory anchorIdComponents = parseSSI(anchorId);
+
         if (anchorValues[anchorId].length == 0) {
             emit InvokeStatus(statusCannotAppendToNonExistentAnchor);
             return;
         }
 
-        if (!validateAnchorValue(anchorId, newAnchorValue, v)) {
+        if (isConstSSI(anchorIdComponents)) {
+            emit InvokeStatus(statusCannotAppendConstAnchor);
+            return;
+        }
+
+        if (!validateAnchorValue(anchorIdComponents, anchorId, newAnchorValue, v)) {
             emit InvokeStatus(statusTimestampOrSignatureCheckFailed);
             return;
         }
@@ -133,7 +146,8 @@ contract Anchoring {
             string memory anchorId = anchors[i];
             string memory newAnchorValue = anchors[i + 1];
             uint8 v = uint8(convertBytesToUInt(bytes(anchors[i + 2])));
-            if (!validateAnchorValue(anchorId, newAnchorValue, v)) {
+            bytes[] memory anchorIdComponents = parseSSI(anchorId);
+            if (!validateAnchorValue(anchorIdComponents, anchorId, newAnchorValue, v)) {
                 emit InvokeStatus(statusTimestampOrSignatureCheckFailed);
                 return;
             }
@@ -237,6 +251,14 @@ contract Anchoring {
         return number;
     }
 
+    function isConstSSI(bytes[] memory anchorIdComponents) private returns (bool){
+        if (keccak256(anchorIdComponents[1]) == keccak256(bytes("cza"))) {
+            return true;
+        }
+
+        return false;
+    }
+
     function getTimestampFromAnchorValue(bytes[] memory ssiComponents) private returns (string memory){
         bytes memory control = ssiComponents[4];
         bytes[] memory split = splitString(string(control), 0x7c);
@@ -271,13 +293,12 @@ contract Anchoring {
         return "";
     }
 
-    function getPublicKey(string memory anchorId) private returns (bytes memory){
+    function getPublicKey(bytes[] memory anchorIdComponents, string memory anchorId) private returns (bytes memory){
         string memory lastTransferSSI = getLastTransferSSI(anchorId);
         if (keccak256(bytes(lastTransferSSI)) != keccak256(bytes(""))) {
             bytes[] memory lastTransferSSIComponents = parseSSI(lastTransferSSI);
             return getSignatureFromAnchorValue(lastTransferSSIComponents);
         } else {
-            bytes[] memory anchorIdComponents = parseSSI(anchorId);
             return decode(anchorIdComponents[4]);
         }
     }
