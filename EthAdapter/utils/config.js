@@ -10,7 +10,8 @@ module.exports = function Config(callback) {
         console.log('Using env SMARTCONTRACTADDRESS : ', process.env.SMARTCONTRACTADDRESS);
         this.contractAddress =  process.env.SMARTCONTRACTADDRESS;
     }else {
-        return callback(new Error("SMARTCONTRACTADDRESS not found."))
+        return callback(
+            new Error("SMARTCONTRACTADDRESS not found."))
     }
 
     //config map

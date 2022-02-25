@@ -46,8 +46,14 @@ function getPublicKey(anchorId, versions) {
 
 async function getV(anchorFactory, anchorId, newAnchorValue) {
     let versions = await promisify(getAllVersionsSmartContract)(anchorFactory.contract, anchorId);
+    if (typeof anchorId === "string") {
+        anchorId = parseSSI(anchorId);
+    }
     if (typeof newAnchorValue === "string") {
         newAnchorValue = parseSSI(newAnchorValue);
+    }
+    if (!anchorId.canAppend()) {
+        return 0;
     }
     let publicKey = getPublicKey(anchorId, versions).toString("hex");
     let signature = "0x" + newAnchorValue.getSignature("raw").toString("hex");
