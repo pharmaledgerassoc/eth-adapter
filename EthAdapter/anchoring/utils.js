@@ -63,7 +63,7 @@ async function getV(anchorFactory, anchorId, newAnchorValue) {
 }
 
 function createOrAppendToAnchor(anchorFactory, account, anchorID, newAnchorValue, nextNonce, operation = "createAnchor", callback) {
-    console.log('Input for addAnchor smart contract : ', anchorID, newAnchorValue);
+    console.log('Input for create or append smart contract : ', anchorID, newAnchorValue, nextNonce);
     getV(anchorFactory, anchorID, newAnchorValue).then(v => {
         anchorID = parseSSI(anchorID).getIdentifier(true);
         newAnchorValue = parseSSI(newAnchorValue).getIdentifier(true);

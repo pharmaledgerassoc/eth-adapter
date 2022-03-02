@@ -1,4 +1,4 @@
-const AnchorContract=artifacts.require("./anchoringSC.sol");
+const AnchorContract=artifacts.require("./Anchoring.sol");
 module.exports = function(deployer){
     deployer.deploy(AnchorContract)
     .then((instance) => {

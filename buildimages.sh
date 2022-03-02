@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
 
-cd ./SmartContract
+cd ./SmartContracts
 
-docker build --no-cache -t anchor_smart -f dockerfile .
-docker tag anchor_smart:latest mabdockerid/anchor_smart:latest
-docker push mabdockerid/anchor_smart:latest
+docker build --no-cache -t anchor_smart -f dockerfile . --network=host
+docker tag anchor_smart:latest pharmaledger/anchor_smart:latest
+docker push pharmaledger/anchor_smart:latest
 
 cd ..
-cd ./ApiAdaptor
+cd ./EthAdapter
 
-docker build --no-cache -t apiadapter -f dockerfile .
-docker tag apiadapter:latest mabdockerid/apiadapter:latest
-docker push mabdockerid/apiadapter:latest
+docker build --no-cache -t apiadapter -f dockerfile-dev . --network=host
+docker tag apiadapter:latest pharmaledger/apiadapter:latest
+docker push pharmaledger/apiadapter:latest
 

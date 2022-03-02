@@ -7,7 +7,7 @@ const truffleConfig = {
       port: 8545,
       network_id: "*",
       gas: 4712388,
-      gasPrice: 300000,
+      gasPrice: 0,
       from: "0x85Eb50fd4f27A5c9E4430a6840722cDa9BB2b358",
 
     },
@@ -15,9 +15,9 @@ const truffleConfig = {
       host: "172.20.2.141",
       port: 8545,
       network_id: "*",
-      gas: 4712388,
+      gas: 14712388,
       gasPrice: 0,
-      from: "0x66d66805E29EaB59901f8B7c4CAE0E38aF31cb0e",
+      from: "0x0eDC5F0610b41633FFC965fB4cFb15B83C5A3223",
       password: "lst7upm",
       type: "quorum"
     }
@@ -32,7 +32,7 @@ const truffleConfig = {
   // Configure your compilers
   compilers: {
     solc: {
-      // version: "0.5.1",    // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.8.0"    // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
       //  optimizer: {

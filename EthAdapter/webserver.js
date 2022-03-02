@@ -43,14 +43,6 @@ function configureHeaders(webServer) {
 
 }
 
-function configureAddAnchorEntryPoints(webServer, config) {
-    const factory = require('./anchoring/anchorFactory');
-    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
-    const addAnchorHandler = require("./controllers/addAnchor").createAddAnchorHandler(anchorFactory, config.account);
-    webServer.use("/addAnchor/*", requestBodyJSONMiddleware);
-    webServer.put("/addAnchor/:keySSI", addAnchorHandler);
-}
-
 function configureCreateAnchorEntryPoints(webServer, config) {
     const factory = require('./anchoring/anchorFactory');
     const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
@@ -107,22 +99,6 @@ function configureDumpAnchorsEntryPoints(webServer, config) {
     webServer.get("/dumpAnchors/*", dumpAnchors);
 }
 
-function configureGetAnchorVersionsEntryPoints(webServer, config) {
-    const factory = require('./anchoring/anchorFactory');
-    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
-    const getVersionsHandler = require("./controllers/getVersions")(anchorFactory);
-    webServer.use("/getAnchorVersions/*", requestBodyJSONMiddleware);
-    webServer.get("/getAnchorVersions/:keySSI", getVersionsHandler);
-}
-
-function configureCheckEntryPoints(webServer, config) {
-    const factory = require('./anchoring/anchorFactory');
-    const anchorFactory = new factory(config.rpcAddress, config.contractAddress, config.abi, config.accountPrivateKey);
-    const checkHandler = require("./controllers/check")(anchorFactory);
-    webServer.use("/check/*", requestBodyJSONMiddleware);
-    webServer.get("/check", checkHandler);
-}
-
 module.exports = function () {
     const port = 3000;
     const config = require("./utils/config");
@@ -140,9 +116,6 @@ module.exports = function () {
 
         configureHeaders(this.webServer);
 
-        configureAddAnchorEntryPoints(this.webServer, scConfig);
-        configureGetAnchorVersionsEntryPoints(this.webServer, scConfig);
-        configureCheckEntryPoints(this.webServer, scConfig);
         configureCreateAnchorEntryPoints(this.webServer, scConfig);
         configureAppendAnchorEntryPoints(this.webServer, scConfig);
         configureCreateOrAppendMultipleAnchorsEntryPoints(this.webServer, scConfig);
