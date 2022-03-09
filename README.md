@@ -13,28 +13,28 @@ ETH Adapter needs to be in sync the [OpenDSU](https://opendsu.com/) implementati
 For example, the **latest ETH Adapter** versions needs to be paired with **[>= v1.1.0 ePI-workspace](https://github.com/PharmaLedger-IMI/epi-workspace/releases)**. For older [ePI-workspace](https://github.com/PharmaLedger-IMI/epi-workspace) releases use the [older version](https://github.com/PharmaLedger-IMI/eth-adapter/tree/62c61b45c9ff44900d31d79d1efc803e024c3589).
 
 ## Repository structure
-The repository strucure is based mostly on two main folders: one folder containing the [smart contract](https://github.com/PharmaLedger-IMI/eth-adapter/blob/master/SmartContracts) that needs to be deploy into the blockchain network and in the other one the [Adapter](https://github.com/PharmaLedger-IMI/eth-adapter/tree/master/EthAdapter) that is in sync with the smart contract APIs. The smart contract and adapter source code are tight together into the same repository due to the fact that is a strong coupling between.
+The repository strucure is based mostly on two main folders: one folder containing the [smart contract](https://github.com/PharmaLedger-IMI/eth-adapter/blob/master/SmartContracts) that needs to be deploy into the blockchain network and in the other one the [Adapter](https://github.com/PharmaLedger-IMI/eth-adapter/tree/master/EthAdapter) that is in sync with the smart contract APIs. The smart contract and adapter source code are tied together into the same repository due to the fact that there is is a strong coupling between them.
 
 ## Smart Contract
-The ETH Adapter needs a custom smart contract in order to be able to ensure the anchor creation, anchor version management and other processes that are used in and by the [OpenDSU](https://opendsu.com/) technology.  To understand the OpenDSU concepts used into the smart contract and the role of the smart contract please refer to the [OpenDSU website](https://opendsu.com/).
+The ETH Adapter needs a custom smart contract in order to be able to ensure the anchor creation, anchor version management and other processes that are used in and by the [OpenDSU](https://opendsu.com/) technology.  To understand the OpenDSU concepts used in the smart contract and the role of the smart contract please refer to the [OpenDSU website](https://opendsu.com/).
 The exact smart contract source code is available by accessing the following [link](https://github.com/PharmaLedger-IMI/eth-adapter/blob/master/SmartContracts/contracts/Anchoring.sol).
-Into the [Smart contract folder](https://github.com/PharmaLedger-IMI/eth-adapter/blob/master/SmartContracts)  besides the smart contract source code there are also docker file and Kubernetes templates examples that can be used in order to ensure a quick deployment into the Blockchain network. 
+In the [Smart contract folder](https://github.com/PharmaLedger-IMI/eth-adapter/blob/master/SmartContracts)  besides the smart contract source code there are also docker file and Kubernetes templates examples that can be used in order to ensure a quick deployment into the Blockchain network. 
 The smart contract deployment is handled via [truffle migrate](https://trufflesuite.com/docs/truffle/getting-started/running-migrations.html)
 
 ### Smart contract deployment
 #### Deployment procedure with Docker and Kubernetes
-The deployment procedure starts with the build process for the Docker image. In order to do this required step need to execute the following commands. Pay attention that in the following commands you need to replace the **pharmaledger** ID with one of yours before executing them.
+The deployment procedure starts with the build process for the Docker image. In order to do this it is the execution the following commands is needed. Pay attention that in the following commands you need to replace the **pharmaledger** ID with one of yours before executing them.
 ```
 cd ./SmartContracts
 docker build --no-cache -t anchor_smart -f dockerfile . --network=host
 docker tag anchor_smart:latest pharmaledger/anchor_smart:latest
 docker push pharmaledger/anchor_smart:latest
 ```
-For the demo purposes we used [hub.docker.com](https://hub.docker.com/) repository but any docker image repository can be used if needed. The image build process can be skipped if you are happy with the images published into **phrmaledger** account. Keep in mind that some image tags can be intermediary builds and may or not contain unstable code.
+For demo purposes we used [hub.docker.com](https://hub.docker.com/) repository but any docker image repository can be used if needed. The image build process can be skipped if you are happy with the images published into **phrmaledger** account. Keep in mind that some image tags can be intermediary builds and may or not contain unstable code.
 
 Now that you have your docker images published and ready we need to review and customize the Kubernetes resource example files. These files are available into the [Smart contracts/K8 folder](https://github.com/PharmaLedger-IMI/eth-adapter/tree/master/SmartContracts/K8)
 
-Let's start with **anchor-configmap.yaml** file where you need to provide the ETH node account address that will be used in order to deploy the smart contract, the IP address and port of the ETH node. Please, make sure that the ETH node that you will use to deploy the smart contract needs to be accessible from the location where you will deploy the docker image that we previous built and published.
+Let's start with **anchor-configmap.yaml** file where you need to provide the ETH node account address that will be used in order to deploy the smart contract, the IP address and port of the ETH node. Please, make sure that the ETH node that you will use to deploy the smart contract is accessible from the location where you will deploy the docker image that we previous built and published.
 
 ```
 apiVersion: v1
@@ -48,7 +48,7 @@ RPC_HOST: "10.100.19.243"
 ```
 Once you make all the needed changes into the anchor-configmap.yaml file save it and deploy with the kubectl apply command into your Kubernetes cluster. 
 
-Next review and update if needed the **anchor_smart.yaml** file in which the Kubernetes Pod is described and our docker image previous built and published is used. If you previous made the choose to use your own Docker repository please make the same replacement to the **pharmaledger** ID with the one that you used during the Docker image build and publish steps.
+Next review and update if needed the **anchor_smart.yaml** file in which the Kubernetes Pod is described and our docker image previous built and published is used. If you previously made the choice to use your own Docker repository please make the same replacement to the **pharmaledger** ID with the one that you used during the Docker image build and publish steps.
 ```
 apiVersion: v1
 
@@ -134,11 +134,11 @@ data:
   RPC_ADDRESS: "http://10.100.19.243:8545"
   ORGACCOUNT: '{"address": "0x0eDC5F0610b41633FFC965fB4cFbXXXXXX", "privateKey": "0x71f0e86d105d64ab7c45f8b0c9c726xxxyyyaaa5dace1cfddd44415deef"}'
 ```
-The SMARTCONTRACTADDRESS needs to be updated with the smart contract address that you deployed or choose to use with your ETH Adapter. The SMARTCONTRACTABI needs to be updated with the ABI of the smart contract. The RPC_ADDRESS needs to point to the ETH Node that the ETH Adapter will use in order to create new transaction to the smart contract. Pay attention to include the HTTP protocol into the RPC_ADDRESS value in order for the Adapter to know how to properly make the calls to the ETH node. The value of ORGACCOUNT needs to be updated with the ETH account that you control and choose authorize the ETH adapter to use for the smart contract calls.
+The SMARTCONTRACTADDRESS needs to be updated with the smart contract address that you deployed or choose to use with your ETH Adapter. The SMARTCONTRACTABI needs to be updated with the ABI of the smart contract. The RPC_ADDRESS needs to point to the ETH Node that the ETH Adapter will use in order to create new transaction to the smart contract. Pay attention to include the HTTP protocol into the RPC_ADDRESS value in order for the Adapter to know how to properly make the calls to the ETH node. The value of ORGACCOUNT needs to be updated with the ETH account that you control and chose to authorize the ETH adapter to use for the smart contract calls.
 
 After the customization make sure to save the file and deploy into your Kubernetes cluster.
 
-Review and update, if needed the **EthAdapter.yaml** file. If you previous made the choose to use your own Docker repository please make the same replacement to the **pharmaledger** ID with the one that you used during the Docker image build and publish steps.
+Review and update, if needed the **EthAdapter.yaml** file. If you previously made the choose to use your own Docker repository please make the same replacement to the **pharmaledger** ID with the one that you used during the Docker image build and publish steps.
 ```
 apiVersion: v1
 
