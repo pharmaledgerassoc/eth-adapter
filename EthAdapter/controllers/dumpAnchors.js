@@ -12,8 +12,8 @@ function dumpAnchors(anchorFactory) {
             const anchorsObjsArray = [];
             for (let i = 0; i < anchors.length; i++) {
                 const anchorObj = {
-                    anchorId: anchors[0][0],
-                    anchorValues: anchors[0][1]
+                    anchorId: anchors[i][0],
+                    anchorValues: anchors[i][1]
                 };
 
                 anchorsObjsArray.push(anchorObj);
