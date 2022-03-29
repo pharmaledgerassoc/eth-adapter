@@ -38,7 +38,7 @@ function configureEntryPoints(webServer) {
 
     function getabi(result, response, next){
         try {
-            const result = require('fs').readFileSync('build/contracts/anchoringSC.json');
+            const result = require('fs').readFileSync('build/contracts/Anchoring.json');
             const jsonResult = JSON.parse(result);
             const bodyResponse = JSON.stringify({abi : jsonResult.abi});
             console.log('-------------------------------------------------------------');
