@@ -37,7 +37,8 @@ module.exports = function Config(callback) {
     {
         console.log('Using env ORGACCOUNT : ', process.env.ORGACCOUNT)
         const orgacc = JSON.parse(process.env.ORGACCOUNT);
-        console.log("Parsed org account", orgacc);
+        console.log("Address", orgacc.address, orgacc["address"]);
+        console.log("PrivateKey", orgacc.privateKey, orgacc["privateKey"]);
         this.account =  orgacc.address;
         this.accountPrivateKey = orgacc.privateKey;
         console.log("config state after setting account credentials", this.account, this.accountPrivateKey);
