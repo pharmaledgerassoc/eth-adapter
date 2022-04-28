@@ -37,16 +37,12 @@ module.exports = function Config(callback) {
     {
         console.log('Using env ORGACCOUNT : ', process.env.ORGACCOUNT)
         const orgacc = JSON.parse(process.env.ORGACCOUNT);
+        console.log("Parsed org account", orgacc);
         this.account =  orgacc.address;
         this.accountPrivateKey = orgacc.privateKey;
     }else {
         return callback(new Error("ORGACCOUNT not found."))
     }
-
-
-
-
-
 
     console.log('Finish loading data from env.');
     console.log(this);
