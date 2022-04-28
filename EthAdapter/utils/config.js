@@ -40,6 +40,8 @@ module.exports = function Config(callback) {
         console.log("Parsed org account", orgacc);
         this.account =  orgacc.address;
         this.accountPrivateKey = orgacc.privateKey;
+        console.log("config state after setting account credentials", this.account, this.accountPrivateKey);
+        console.log(this);
     }else {
         return callback(new Error("ORGACCOUNT not found."))
     }
