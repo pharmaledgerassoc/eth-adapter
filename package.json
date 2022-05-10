@@ -1,6 +1,6 @@
 {
     "name": "ethereum-anchoring",
-    "version": "v1.0.1",
+    "version": "1.0.1",
     "description": "[![SmartContractTests Actions Status](https://github.com/PharmaLedger-IMI/ethereum-anchoring/workflows/SmartContractTests/badge.svg)](https://github.com/PharmaLedger-IMI/ethereum-anchoring/actions)",
     "main": "index.js",
     "scripts": {
