@@ -46,7 +46,7 @@ function compareSHLSSI(versionOne, versionTwo){
 
 async function getTotalNumberOfAnchorsTest(){
     try {
-        const anchors = await http.fetch(`${ETH_ADAPTER_BASE_URL}/totalNumberOfAnchors/`).then(res=>res.text());
+        const anchors = await http.fetch(`${ETH_ADAPTER_BASE_URL}/totalNumberOfAnchors`).then(res=>res.text());
         console.log(anchors);
         return anchors;
     } catch (e) {
@@ -57,7 +57,7 @@ async function getTotalNumberOfAnchorsTest(){
 
 async function dumpAllAnchorsTest(){
     try {
-        const anchors = await http.fetch(`${ETH_ADAPTER_BASE_URL}/dumpAnchors/`).then(res=>res.text());
+        const anchors = await http.fetch(`${ETH_ADAPTER_BASE_URL}/dumpAnchors`).then(res=>res.text());
         console.log(anchors);
     } catch (e) {
         console.trace(e);
@@ -116,7 +116,7 @@ async function appendToAnchorTest(anchorID, anchorVersion){
 async function createOrUpdateMultipleAnchorsTest(input){
     try {
         let doPut = $$.promisify(http.doPut);
-        await doPut(`${ETH_ADAPTER_BASE_URL}/createOrAppendMultipleAnchors/`,JSON.stringify(input));
+        await doPut(`${ETH_ADAPTER_BASE_URL}/createOrAppendMultipleAnchors`,JSON.stringify(input));
         console.log(`Runned createOrUpdateMultipleAnchorsTest`);
     } catch (e) {
         console.trace(e);

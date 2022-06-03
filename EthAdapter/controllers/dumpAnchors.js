@@ -1,7 +1,7 @@
 module.exports = function (request, response, next) {
-    const body = request.body;
+    const params = request.query;
 
-    require("../services/anchoringService").dumpAnchors(body.from, body.limit, body.maxSize, (err, result) => {
+    require("../services/anchoringService").dumpAnchors(params.from, params.limit, params.maxSize, (err, result) => {
         if (err) {
             console.log("response dumpAnchors 500");
             return response.status(500).send(err);

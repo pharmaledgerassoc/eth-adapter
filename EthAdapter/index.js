@@ -58,7 +58,7 @@ function boot() {
     server.put("/appendAnchor/:anchorId/:anchorValue", appendAnchorHandler);
 
     const createOrUpdateMultipleAnchorsHandler = require("./controllers/createOrUpdateMultipleAnchors");
-    server.put("/createOrAppendMultipleAnchors/*", createOrUpdateMultipleAnchorsHandler);
+    server.put("/createOrAppendMultipleAnchors", createOrUpdateMultipleAnchorsHandler);
 
     const getAllVersionsHandler = require("./controllers/getAllVersions");
     server.get("/getAllVersions/:anchorId", getAllVersionsHandler);
@@ -67,10 +67,10 @@ function boot() {
     server.get("/getLastVersion/:anchorId", getLastVersionHandler);
 
     const totalNumberOfAnchors = require("./controllers/totalNumberOfAnchors");
-    server.get("/totalNumberOfAnchors/*", totalNumberOfAnchors);
+    server.get("/totalNumberOfAnchors", totalNumberOfAnchors);
 
     const dumpAnchors = require("./controllers/dumpAnchors");
-    server.get("/dumpAnchors/*", dumpAnchors);
+    server.get("/dumpAnchors", dumpAnchors);
 
     console.log('EthAdapter is ready. Listening on port', port);
 }
