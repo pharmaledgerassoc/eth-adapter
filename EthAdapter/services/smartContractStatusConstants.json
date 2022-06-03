@@ -1,0 +1,12 @@
+{
+    "200": "OK",
+    "201": "AddedConstSSI OK",
+    "100": "HashLinkOutOfSync",
+    "101": "CannotUpdateReadOnlyAnchor",
+    "102": "HashOfPublicKeyDoesntMatchControlString",
+    "103": "SignatureCheckFailed",
+    "104": "TimestampOrSignatureCheckFailed",
+    "105": "CannotCreateExistingAnchor",
+    "106": "CannotAppendToNonExistentAnchor",
+    "107": "CannotAppendConstAnchor"
+}

@@ -1,11 +1,8 @@
 {
-  "name": "AnchorContract",
+  "name": "EthAdapter",
   "version": "1.0.0",
-  "description": "Anchor API",
+  "description": "OpenDSU Ethereum Adapter",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "dependencies": {
     "ethers": "^5.0.23",
     "express": "^4.17.1",
@@ -14,12 +11,11 @@
     "web3-eth-contract": "^1.2.9"
   },
   "devDependencies": {
-    "dotenv": "^8.2.0"
+    "octopus": "git+http://github.com/privatesky/octopus.git"
   },
   "scripts": {
     "start": "node index.js",
-    "start-dev": "node -r dotenv/config index.js"
+    "start-dev": "node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"npm run start\""
   },
-  "author": "Mastahac Bogdan",
   "license": "MIT"
 }

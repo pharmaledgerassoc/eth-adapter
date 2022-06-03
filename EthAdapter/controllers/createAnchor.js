@@ -1,25 +1,15 @@
-function createCreateAnchorHandler(anchorFactory, account) {
-    return function (request, response, next) {
+module.exports = function (request, response, next) {
+    const anchorID = request.params.anchorId;
+    const anchorValue = request.params.anchorValue;
 
-        const anchorID = request.params.anchorId;
-        const anchorValue = request.params.anchorValue;
-
-        require("../anchoring/createAnchorSmartContract")(anchorFactory, account,
-            anchorID,
-            anchorValue,
-            (err, result) => {
-
-                if (err) {
-                    console.log("------------------------------------------------------")
-                    console.log("response createAnchor 428. Error : ", err);
-                    console.log({anchorID, anchorValue});
-                    console.log("------------------------------------------------------")
-                    return response.status(428).send("Smart contract invocation failed");
-                }
-                console.log("response createAnchor 200", anchorID);
-                return response.status(200).send(result);
-            })
-    }
+    require("../services/anchoringService").createAnchor(anchorID, anchorValue, (err, result) => {
+        if (err) {
+            console.group(`createAnchor(${anchorID}, ${anchorValue}) ended with Error:`);
+            console.log(err);
+            console.groupEnd();
+            return response.status(428).send("Smart contract invocation failed");
+        }
+        console.log("createAnchor ended with success for anchor id: ", anchorID);
+        return response.status(200).send(result);
+    });
 }
-
-module.exports = createCreateAnchorHandler;

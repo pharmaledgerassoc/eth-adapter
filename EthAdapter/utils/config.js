@@ -1,52 +1,40 @@
-module.exports = function Config(callback) {
+console.log("ETH Adapter reads necessary info from environment. Make sure to provide all the info according to official documentation");
 
-    //config map
-    if (typeof process.env.SMARTCONTRACTADDRESS !== "undefined") {
-        console.log('Using env SMARTCONTRACTADDRESS : ', process.env.SMARTCONTRACTADDRESS);
-        this.contractAddress = process.env.SMARTCONTRACTADDRESS;
-    } else {
-        return callback(
-            new Error("SMARTCONTRACTADDRESS not found."))
-    }
+let contractAddress;
+if (typeof process.env.SMARTCONTRACTADDRESS !== "undefined") {
+    contractAddress = process.env.SMARTCONTRACTADDRESS;
+} else {
+    throw new Error("Not able to read SMARTCONTRACTADDRESS from env.");
+}
 
-    //config map
-    if (typeof process.env.SMARTCONTRACTABI !== "undefined") {
-        console.log('Using env SMARTCONTRACTABI : ', process.env.SMARTCONTRACTABI);
-        this.abi = JSON.parse(process.env.SMARTCONTRACTABI);
-    } else {
-        return callback(new Error("SMARTCONTRACTABI not found."))
-    }
+let abi;
+if (typeof process.env.SMARTCONTRACTABI !== "undefined") {
+    abi = JSON.parse(process.env.SMARTCONTRACTABI);
+} else {
+    throw new Error("Not able to read SMARTCONTRACTABI from env.");
+}
 
-    //config map
-    if (typeof process.env.RPC_ADDRESS !== "undefined") {
-        console.log('Using env RPC_ADDRESS : ', process.env.RPC_ADDRESS);
-        this.rpcAddress = process.env.RPC_ADDRESS;
-    } else {
-        return callback(new Error("RPC_ADDRESS not found."))
-    }
+let rpcAddress;
+if (typeof process.env.RPC_ADDRESS !== "undefined") {
+    rpcAddress = process.env.RPC_ADDRESS;
+} else {
+    throw new Error("Not able to read RPC_ADDRESS from env.");
+}
 
-    //secrets - ORGACCOUNT
-    if (typeof process.env.ORGACCOUNT !== "undefined") {
-        console.log('Using env ORGACCOUNT : ', process.env.ORGACCOUNT)
-        let orgacc;
-        try {
-            orgacc = JSON.parse(process.env.ORGACCOUNT);
-        } catch (e) {
-            return callback(e);
-        }
-        console.log("orgacc", orgacc, typeof orgacc, Object.keys(orgacc));
-        console.log("Address", orgacc.address, orgacc["address"]);
-        console.log("PrivateKey", orgacc.privateKey, orgacc["privateKey"]);
-        this.account = orgacc.address;
-        this.accountPrivateKey = orgacc.privateKey;
-        console.log("config state after setting account credentials", this.account, this.accountPrivateKey);
-        console.log(this);
-    } else {
-        return callback(new Error("ORGACCOUNT not found."))
-    }
+let account;
+let accountPrivateKey;
+if (typeof process.env.ORGACCOUNT !== "undefined") {
+    let orgacc = JSON.parse(process.env.ORGACCOUNT);
+    account = orgacc.address;
+    accountPrivateKey = orgacc.privateKey;
+} else {
+    throw new Error("Not able to read ORGACCOUNT from env.");
+}
 
-    console.log('Finish loading data from env.');
-    console.log(this);
-    callback(undefined, this);
-
-};
+module.exports = {
+    abi,
+    account,
+    accountPrivateKey,
+    contractAddress,
+    rpcAddress
+}
