@@ -1,6 +1,19 @@
 const ethUtils = require("../utils/eth");
 const {parseSSI, errorWrapper} = require("../utils/opendsuutils");
 
+function ensureResultIsEncoded(result){
+    if(Array.isArray(result)){
+        result = result.map(item=>{
+            return parseSSI(item).getIdentifier();
+        });
+        return result;
+    }
+
+    if(result){
+        return parseSSI(result).getIdentifier();
+    }
+}
+
 function getLastTransferSSI(versions) {
     for (let i = versions.length - 1; i >= 0; i--) {
         let ssi = parseSSI(versions[i]);
@@ -138,7 +151,7 @@ async function getAllVersions(anchorID, callback) {
         error = errorWrapper("Failed getAllVersions", err);
     }
 
-    callback(error, result);
+    callback(error, ensureResultIsEncoded(result));
 }
 
 async function getLastVersion(anchorID, callback) {
@@ -155,7 +168,7 @@ async function getLastVersion(anchorID, callback) {
         error = errorWrapper("Failed getAllVersions", err);
     }
 
-    callback(error, result);
+    callback(error, ensureResultIsEncoded(result));
 }
 
 async function totalNumberOfAnchors(callback) {
