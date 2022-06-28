@@ -19,32 +19,20 @@ function requestBodyJSONMiddleware(request, response, next) {
     });
 }
 
-function configureHeaders(server) {
-    server.use(function (req, res, next) {
+function boot() {
+    const port = 3000;
+    const express = require('express');
+    
+    let app = express();
+
+    app.use(function (req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*');
-        // Request methods you wish to allow
+        // Request methods allowed
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-        // Request headers you wish to allow
-        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Content-Length, X-Content-Length');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        // Request methods you wish to allow
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-        // Request headers you wish to allow
+        // Request headers allowed
         res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Content-Length, X-Content-Length');
         next();
     });
-}
-
-function boot() {
-    const port = 3000;
-    const config = require("./utils/config");
-    const express = require('express');
-    
-    let server = express();
-
-    server.listen(port);
-
-    configureHeaders(server);
 
     //the following line is not really necessary but prevents a bug related to the fact we need to require web3 before opendsu bundle
     require("./services/transactionManager").getInstance();
@@ -53,31 +41,40 @@ function boot() {
     require("../../privatesky/psknode/bundles/openDSU");
     openDSURequire('overwrite-require');
 
-    server.use("*", requestBodyJSONMiddleware);
+    app.use("*", requestBodyJSONMiddleware);
 
     const createAnchorHandler = require("./controllers/createAnchor");
-    server.put("/createAnchor/:anchorId/:anchorValue", createAnchorHandler);
+    app.put("/createAnchor/:anchorId/:anchorValue", createAnchorHandler);
 
     const appendAnchorHandler = require("./controllers/appendAnchor");
-    server.put("/appendAnchor/:anchorId/:anchorValue", appendAnchorHandler);
+    app.put("/appendAnchor/:anchorId/:anchorValue", appendAnchorHandler);
 
     const createOrUpdateMultipleAnchorsHandler = require("./controllers/createOrUpdateMultipleAnchors");
-    server.put("/createOrAppendMultipleAnchors", createOrUpdateMultipleAnchorsHandler);
+    app.put("/createOrAppendMultipleAnchors", createOrUpdateMultipleAnchorsHandler);
 
     const getAllVersionsHandler = require("./controllers/getAllVersions");
-    server.get("/getAllVersions/:anchorId", getAllVersionsHandler);
+    app.get("/getAllVersions/:anchorId", getAllVersionsHandler);
 
     const getLastVersionHandler = require("./controllers/getLastVersion");
-    server.get("/getLastVersion/:anchorId", getLastVersionHandler);
+    app.get("/getLastVersion/:anchorId", getLastVersionHandler);
 
     const totalNumberOfAnchors = require("./controllers/totalNumberOfAnchors");
-    server.get("/totalNumberOfAnchors", totalNumberOfAnchors);
+    app.get("/totalNumberOfAnchors", totalNumberOfAnchors);
 
     const dumpAnchors = require("./controllers/dumpAnchors");
-    server.get("/dumpAnchors", dumpAnchors);
+    app.get("/dumpAnchors", dumpAnchors);
 
-    server.get("/health", function(req, res, next){
+    app.get("/health", function(req, res, next){
         res.status(200).send();
+    });
+
+    let server = app.listen(port);
+
+    process.on('SIGTERM', () => {
+        console.log('SIGTERM signal received: closing ETH Adapter');
+        server.close(() => {
+            console.log('ETH Adapter stopped!');
+        });
     });
 
     console.log('EthAdapter is ready. Listening on port', port);
