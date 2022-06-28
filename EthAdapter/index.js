@@ -49,6 +49,10 @@ function boot() {
     //the following line is not really necessary but prevents a bug related to the fact we need to require web3 before opendsu bundle
     require("./services/transactionManager").getInstance();
 
+    //this require needs to be called after the web3 library require to don't interfere
+    require("../../privatesky/psknode/bundles/openDSU");
+    openDSURequire('overwrite-require');
+
     server.use("*", requestBodyJSONMiddleware);
 
     const createAnchorHandler = require("./controllers/createAnchor");
