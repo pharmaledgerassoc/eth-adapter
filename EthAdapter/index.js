@@ -76,6 +76,10 @@ function boot() {
     const dumpAnchors = require("./controllers/dumpAnchors");
     server.get("/dumpAnchors", dumpAnchors);
 
+    server.get("/health", function(req, res, next){
+        res.status(200).send();
+    });
+
     console.log('EthAdapter is ready. Listening on port', port);
 }
 
