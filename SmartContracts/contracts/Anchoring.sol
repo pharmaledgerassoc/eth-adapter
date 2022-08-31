@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract Anchoring {
@@ -27,7 +28,7 @@ contract Anchoring {
         bytes[] array;
     }
 
-    function dynamicArrayPush(DynamicArray memory arr, bytes memory value) private {
+    function dynamicArrayPush(DynamicArray memory arr, bytes memory value) private pure {
         bytes[] memory copy;
         copy = new bytes[](arr.array.length + 1);
         for (uint i = 0; i < arr.array.length; i++) {
@@ -42,7 +43,7 @@ contract Anchoring {
     bytes constant ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     uint constant BASE = 64;
     mapping(bytes1 => uint8) BASE_MAP;
-    constructor() public {
+    constructor() {
         for (uint8 i = 0; i < ALPHABET.length; i++) {
             BASE_MAP[ALPHABET[i]] = i;
         }
@@ -74,7 +75,7 @@ contract Anchoring {
         emit InvokeStatus(statusOK);
     }
 
-    function validateAnchorValue(bytes[] memory anchorIdComponents, string memory anchorId, string memory newAnchorValue, uint8 v) private returns (bool) {
+    function validateAnchorValue(bytes[] memory anchorIdComponents, string memory anchorId, string memory newAnchorValue, uint8 v) private view returns (bool) {
         if (isConstSSI(anchorIdComponents)) {
             return true;
         }
@@ -167,7 +168,7 @@ contract Anchoring {
 
     }
 
-    function computeSize(string[] memory values) private returns (uint){
+    function computeSize(string[] memory values) private pure returns (uint){
         uint size = 0;
         for (uint i = 0; i < values.length; i++) {
             size += bytes(values[i]).length;
@@ -176,7 +177,7 @@ contract Anchoring {
         return size;
     }
 
-    function dumpAnchors(uint from, uint limit, uint maxSize) public returns (Anchor[] memory){
+    function dumpAnchors(uint from, uint limit, uint maxSize) public view returns (Anchor[] memory){
         uint length;
         if (limit + from > indexedAnchors.length) {
             length = indexedAnchors.length;
@@ -199,11 +200,11 @@ contract Anchoring {
         return anchors;
     }
 
-    function totalNumberOfAnchors() public returns (uint){
+    function totalNumberOfAnchors() public view returns (uint){
         return indexedAnchors.length;
     }
 
-    function splitString(string memory str, bytes1 splitChar) private returns (bytes[] memory){
+    function splitString(string memory str, bytes1 splitChar) private pure returns (bytes[] memory){
         bytes memory buff = bytes(str);
         bytes memory component = new bytes(buff.length);
         uint8 len = 0;
@@ -211,11 +212,11 @@ contract Anchoring {
         uint componentIndex = 0;
         for (uint i = 0; i < buff.length; i++) {
             if (buff[i] == splitChar) {
-                bytes memory clone = new bytes(len);
+                bytes memory tempClone = new bytes(len);
                 for (uint j = 0; j < len; j++) {
-                    clone[j] = component[j];
+                    tempClone[j] = component[j];
                 }
-                dynamicArrayPush(components, clone);
+                dynamicArrayPush(components, tempClone);
                 componentIndex++;
                 len = 0;
                 component = new bytes(buff.length);
@@ -232,7 +233,7 @@ contract Anchoring {
         return components.array;
     }
 
-    function validateTimestamp(bytes[] memory newAnchorValueComponents, bytes[] memory lastAnchorValueComponents) private returns (bool){
+    function validateTimestamp(bytes[] memory newAnchorValueComponents, bytes[] memory lastAnchorValueComponents) private pure returns (bool){
         uint anchorValueTimestamp = getTimestampFromAnchorValueAsUInt(newAnchorValueComponents);
         uint lastAnchorValueTimestamp = getTimestampFromAnchorValueAsUInt(lastAnchorValueComponents);
         if (anchorValueTimestamp < lastAnchorValueTimestamp) {
@@ -242,7 +243,7 @@ contract Anchoring {
         return true;
     }
 
-    function convertBytesToUInt(bytes memory buff) private returns (uint){
+    function convertBytesToUInt(bytes memory buff) private pure returns (uint){
         uint number = 0;
         for (uint i = 0; i < buff.length; i++) {
             number = number * 10 + uint8(buff[i]) - 48;
@@ -251,7 +252,7 @@ contract Anchoring {
         return number;
     }
 
-    function isConstSSI(bytes[] memory anchorIdComponents) private returns (bool){
+    function isConstSSI(bytes[] memory anchorIdComponents) private pure returns (bool){
         if (keccak256(anchorIdComponents[1]) == keccak256(bytes("cza"))) {
             return true;
         }
@@ -259,18 +260,18 @@ contract Anchoring {
         return false;
     }
 
-    function getTimestampFromAnchorValue(bytes[] memory ssiComponents) private returns (string memory){
+    function getTimestampFromAnchorValue(bytes[] memory ssiComponents) private pure returns (string memory){
         bytes memory control = ssiComponents[4];
         bytes[] memory split = splitString(string(control), 0x7c);
         return string(split[0]);
     }
 
-    function getTimestampFromAnchorValueAsUInt(bytes[] memory ssiComponents) private returns (uint){
+    function getTimestampFromAnchorValueAsUInt(bytes[] memory ssiComponents) private pure returns (uint){
         string memory timestamp = getTimestampFromAnchorValue(ssiComponents);
         return convertBytesToUInt(bytes(timestamp));
     }
 
-    function isTransfer(string memory ssi) private returns (bool){
+    function isTransfer(string memory ssi) private pure returns (bool){
         bytes[] memory ssiComponents = parseSSI(ssi);
         if (keccak256(ssiComponents[1]) == keccak256(bytes("transfer"))) {
             return true;
@@ -278,7 +279,7 @@ contract Anchoring {
         return false;
     }
 
-    function getLastTransferSSI(string memory anchorId) private returns (string memory){
+    function getLastTransferSSI(string memory anchorId) private view returns (string memory){
         string[] memory values = anchorValues[anchorId];
         if (values.length == 0) {
             return "";
@@ -293,7 +294,7 @@ contract Anchoring {
         return "";
     }
 
-    function getPublicKey(bytes[] memory anchorIdComponents, string memory anchorId) private returns (bytes memory){
+    function getPublicKey(bytes[] memory anchorIdComponents, string memory anchorId) private view returns (bytes memory){
         string memory lastTransferSSI = getLastTransferSSI(anchorId);
         if (keccak256(bytes(lastTransferSSI)) != keccak256(bytes(""))) {
             bytes[] memory lastTransferSSIComponents = parseSSI(lastTransferSSI);
@@ -303,7 +304,7 @@ contract Anchoring {
         }
     }
 
-    function getSignatureFromAnchorValue(bytes[] memory ssiSegments) private returns (bytes memory){
+    function getSignatureFromAnchorValue(bytes[] memory ssiSegments) private view returns (bytes memory){
         bytes memory control = ssiSegments[4];
         bytes[] memory components = splitString(string(control), 0x7c);
         bytes memory rsSignature = decode(components[1]);
@@ -311,11 +312,11 @@ contract Anchoring {
         return rsSignature;
     }
 
-    function parseSSI(string memory ssi) private returns (bytes[] memory){
+    function parseSSI(string memory ssi) private pure returns (bytes[] memory){
         return splitString(ssi, 0x3a);
     }
 
-    function encode(bytes memory source) private view returns (bytes memory){
+    function encode(bytes memory source) private pure returns (bytes memory){
         bytes memory sourceBytes = bytes(source);
         if (sourceBytes.length == 0) {
             return '';
@@ -323,7 +324,7 @@ contract Anchoring {
         uint ifactor = 133;
         uint normalizer = 100;
         uint size = (sourceBytes.length * ifactor + normalizer) / normalizer;
-        uint rest = sourceBytes.length % 3;
+        //uint rest = sourceBytes.length % 3;
         uint8[] memory digits = new uint8[](size);
         uint8 length = 0;
         uint8 previousLength = 0;
@@ -375,8 +376,8 @@ contract Anchoring {
                 paddingLength++;
             }
         }
-        uint factor = 75;
-        uint normalizer = 100;
+        //uint factor = 75;
+        //uint normalizer = 100;
         uint rest = (sourceBytes.length - paddingLength) % 4;
         uint size = (sourceBytes.length - paddingLength - rest) * 3 / 4;
         if (paddingLength == 2) {
@@ -423,7 +424,7 @@ contract Anchoring {
         return res;
     }
 
-    function validateSignature(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, string memory timestamp, bytes memory signature, uint8 v, bytes memory publicKey) private returns (bool) {
+    function validateSignature(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, string memory timestamp, bytes memory signature, uint8 v, bytes memory publicKey) private pure returns (bool) {
         bool res = calculateAddress(publicKey) == getAddressFromHashAndSig(anchorId, brickMapHash, lastAnchorValue, timestamp, signature, v);
         if (!res) {
             res = sha256(abi.encodePacked(publicKey)) == sha256(abi.encodePacked(getAddressFromHashAndSig(anchorId, brickMapHash, lastAnchorValue, timestamp, signature, v)));
@@ -431,14 +432,14 @@ contract Anchoring {
         return res;
     }
 
-    function getAddressFromHashAndSig(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, string memory timestamp, bytes memory signature, uint8 v) private returns (address)
+    function getAddressFromHashAndSig(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, string memory timestamp, bytes memory signature, uint8 v) private pure returns (address)
     {
         //return the public key derivation
 
         return recover(getHashToBeChecked(anchorId, brickMapHash, lastAnchorValue, timestamp), signature, v);
     }
 
-    function getHashToBeChecked(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, string memory timestamp) private returns (bytes32)
+    function getHashToBeChecked(string memory anchorId, string memory brickMapHash, string memory lastAnchorValue, string memory timestamp) private pure returns (bytes32)
     {
         //use abi.encodePacked to not pad the inputs
         if (keccak256(bytes(lastAnchorValue)) == keccak256(bytes(""))) {
@@ -476,7 +477,7 @@ contract Anchoring {
         return abi.encodePacked(first32, second32);
     }
 
-    function recover(bytes32 hash, bytes memory signature, uint8 v) public returns (address)
+    function recover(bytes32 hash, bytes memory signature, uint8 v) public pure returns (address)
     {
         bytes32 r;
         bytes32 s;
