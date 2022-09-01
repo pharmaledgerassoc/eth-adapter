@@ -121,17 +121,18 @@ describe('AnchoringTest', () => {
         let v = eth.getV(signatureHex, Buffer.from(publicKey, "base64").toString("hex"), dataToSign);
         console.log("anchorID", anchorID);
         console.log("newAnchorValue", signedHLSSI);
-        console.log("v", v);
+        console.log("v");
         console.log("hash", crypto.sha256JOSE(dataToSign).toString("hex"))
         let result;
         try {
-            let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI, v);
+            let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI);
             try {
                 result = await command.send({
                     from: accounts[0],
                     gas: estimatedGas
                 });
 
+                console.log(result.events.UIntResult);
                 assert.equal(result.events.InvokeStatus.returnValues.statusCode, 200);
             } catch (e) {
                 console.log("Error at sending data to smart contract", e)
@@ -160,7 +161,7 @@ describe('AnchoringTest', () => {
         const v = 0;
         let result;
         try {
-            let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI, v);
+            let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI);
             try {
                 result = await command.send({
                     from: accounts[0],
@@ -196,14 +197,13 @@ describe('AnchoringTest', () => {
         const v = 0;
         let result;
         try {
-            let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI, v);
+            let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI);
             try {
                 result = await command.send({
                     from: accounts[0],
                     gas: estimatedGas
                 });
 
-                // console.log(result.events.BoolResult.returnValues.str)
                 assert.equal(result.events.InvokeStatus.returnValues.statusCode, 200);
 
 
@@ -214,7 +214,7 @@ describe('AnchoringTest', () => {
             brickMapHash = "hash";
             hashLinkSSI = keySSISpace.createHashLinkSSI(DOMAIN, brickMapHash);
             signedHLSSI = hashLinkSSI.getIdentifier(true);
-            command = await contractResult.methods.appendAnchor(anchorID, signedHLSSI, v);
+            command = await contractResult.methods.appendAnchor(anchorID, signedHLSSI);
             try {
                 result = await command.send({
                     from: accounts[0],
@@ -255,7 +255,7 @@ describe('AnchoringTest', () => {
         console.log(signedHashLinkSSI1.getIdentifier());
         let result;
         try {
-            let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI1, v);
+            let command = await contractResult.methods.createAnchor(anchorID, signedHLSSI1);
             try {
                 result = await command.send({
                     from: accounts[0],
@@ -275,7 +275,7 @@ describe('AnchoringTest', () => {
                 v = eth.getV(signatureHex, Buffer.from(publicKey, "base64").toString("hex"), dataToSign);
 
                 assert.equal(result.events.InvokeStatus.returnValues.statusCode, 200);
-                command = await contractResult.methods.appendAnchor(anchorID, signedHLSSI1, v);
+                command = await contractResult.methods.appendAnchor(anchorID, signedHLSSI1);
                 result = await command.send({
                     from: accounts[0],
                     gas: estimatedGas
@@ -311,7 +311,7 @@ describe('AnchoringTest', () => {
 
         const DOMAIN = 'default';
         const keySSISpace = opendsu.loadApi("keyssi");
-        let NO_ANCHORS = 10;
+        let NO_ANCHORS = 50;
         let anchors = '';
         let anchorsArray = []
         let anchorsObjArr = [];
@@ -332,7 +332,6 @@ describe('AnchoringTest', () => {
             let v = eth.getV(signatureHex, Buffer.from(publicKey, "base64").toString("hex"), dataToSign);
             anchorsArray.push(anchorID);
             anchorsArray.push(signedHLSSI1);
-            anchorsArray.push(v.toString(10));
             anchorsObjArr.push({
                 anchorId: anchorID,
                 anchorValue: signedHLSSI1
