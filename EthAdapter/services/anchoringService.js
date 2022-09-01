@@ -63,20 +63,13 @@ async function getV(anchorId, newAnchorValue) {
 
 async function createOrAppendToAnchor(anchorID, newAnchorValue, operation = "createAnchor", callback) {
     console.log('Input for create or append smart contract : ', anchorID, newAnchorValue);
-    let v;
-    try {
-        v = await getV(anchorID, newAnchorValue);
-    } catch (err) {
-        console.log(err);
-        return callback(errorWrapper("Failed to get v byte for signature", err));
-    }
 
     const txManager = await require("./../services/transactionManager").getInstance();
     let err;
     try {
         anchorID = parseSSI(anchorID).getIdentifier(true);
         newAnchorValue = parseSSI(newAnchorValue).getIdentifier(true);
-        await txManager.sendWriteTransaction(operation, anchorID, newAnchorValue, v);
+        await txManager.sendWriteTransaction(operation, anchorID, newAnchorValue);
     } catch (error) {
         err = error;
     }
@@ -96,10 +89,8 @@ async function createMultipleAnchorsInput(anchors) {
     for (let i = 0; i < anchors.length; i++) {
         let anchorId = parseSSI(anchors[i].anchorId);
         const newAnchorValue = parseSSI(anchors[i].anchorValue);
-        const v = await getV(anchorId, newAnchorValue);
         res.push(anchorId.getIdentifier(true));
         res.push(newAnchorValue.getIdentifier(true));
-        res.push(v.toString(10));
     }
 
     return res;
