@@ -171,7 +171,7 @@ async function createOrUpdateMultipleAnchorsTest(input){
     }
 
     let secondAnchorVersions = await getAllVersionsTest(secondAnchorId);
-    if(secondAnchorVersions !== 1){
+    if(secondAnchorVersions.length !== 1){
         throw Error("Second DSU failed to be created with createOrUpdateMultipleAnchors method!");
     }
 
@@ -181,7 +181,7 @@ async function createOrUpdateMultipleAnchorsTest(input){
         throw Error("Second DSU was not anchored into blockchain!");
     }
 
-    if(secondTotal - numberOfCurrentAnchors !== "2"){
+    if(secondTotal - numberOfCurrentAnchors !== 2){
         throw Error("The total number of anchors should rise with the value of 2 each time the test is run!");
     }
 })();
