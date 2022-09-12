@@ -35,56 +35,11 @@ async function createNewVersionForAnchor(seedSSI, brickMapHash = "hash1", previo
     return signedHashLinkSSI1.getIdentifier();
 }
 
-function compareSHLSSI(versionOne, versionTwo) {
-    const keySSISpace = opendsu.loadAPI("keyssi");
-    versionOne = keySSISpace.parse(versionOne);
-    versionTwo = keySSISpace.parse(versionTwo);
-    if (versionOne.getIdentifier() !== versionTwo.getIdentifier()) {
-        throw Error("Compared SignedHashLinkSSIs are different!");
-    }
-}
-
 async function getTotalNumberOfAnchorsTest() {
     try {
         const anchors = await http.fetch(`${ETH_ADAPTER_BASE_URL}/totalNumberOfAnchors`).then(res => res.text());
         console.log(anchors);
         return anchors;
-    } catch (e) {
-        console.trace(e);
-        process.exit(1);
-    }
-}
-
-async function dumpAllAnchorsTest() {
-    try {
-        const anchors = await http.fetch(`${ETH_ADAPTER_BASE_URL}/dumpAnchors`).then(res => res.text());
-        console.log(anchors);
-    } catch (e) {
-        console.trace(e);
-        process.exit(1);
-    }
-}
-
-async function getAllVersionsTest(anchorID) {
-    try {
-        const versions = await http.fetch(`${ETH_ADAPTER_BASE_URL}/getAllVersions/${anchorID}`).then(res => res.json());
-        console.log(`For anchorID ${anchorID} found this versions: ${JSON.stringify(versions)}`);
-        return versions;
-    } catch (e) {
-        console.trace(e);
-        process.exit(1);
-    }
-}
-
-async function getLastVersionTest(anchorID) {
-    try {
-        const version = await http.fetch(`${ETH_ADAPTER_BASE_URL}/getLastVersion/${anchorID}`).then(res => res.text());
-        if (version !== "") {
-            console.log(`For anchorID ${anchorID} has this version as latest: ${version}`);
-        } else {
-            console.log(`No version was found for anchorID ${anchorID}`);
-        }
-        return version;
     } catch (e) {
         console.trace(e);
         process.exit(1);
@@ -102,42 +57,32 @@ async function createAnchorTest(anchorID, anchorVersion) {
     }
 }
 
-async function appendToAnchorTest(anchorID, anchorVersion) {
-    try {
-        let doPut = $$.promisify(http.doPut);
-        await doPut(`${ETH_ADAPTER_BASE_URL}/appendAnchor/${anchorID}/${anchorVersion}`, {});
-        console.log(`Created anchor with id ${anchorID} and version ${anchorVersion}`);
-    } catch (e) {
-        console.trace(e);
-        process.exit(1);
-    }
-}
-
-async function createOrUpdateMultipleAnchorsTest(input) {
-    try {
-        let doPut = $$.promisify(http.doPut);
-        await doPut(`${ETH_ADAPTER_BASE_URL}/createOrAppendMultipleAnchors`, JSON.stringify(input));
-        console.log(`Runned createOrUpdateMultipleAnchorsTest`);
-    } catch (e) {
-        console.trace(e);
-        process.exit(1);
-    }
-}
-
 // i think DumpAll anchors needs to be a GET with query params. At this moment is a get with a body!!!
 //dumpAllAnchorsTest();
 
-(async () => {
+const createAnchors = async () => {
     let numberOfCurrentAnchors = await getTotalNumberOfAnchorsTest();
     const NO_ANCHORS = 200;
+    const TaskCounter = require("swarmutils").TaskCounter;
+    const taskCounter = new TaskCounter(async () => {
+        console.timeEnd("anchorProcessing");
+        const totalNOAnchors = await getTotalNumberOfAnchorsTest();
+        if (NO_ANCHORS !== totalNOAnchors - numberOfCurrentAnchors) {
+            throw Error("Some anchors were not created");
+        }
+    })
+    taskCounter.increment(NO_ANCHORS);
+    console.time("anchorProcessing")
     for (let i = 0; i < NO_ANCHORS; i++) {
         let dsuIdentifier = await createSeedSSI();
         let anchorId = await getAnchorId(dsuIdentifier);
         let anchorVersion = await createNewVersionForAnchor(dsuIdentifier);
-        await createAnchorTest(anchorId, anchorVersion);
+        createAnchorTest(anchorId, anchorVersion).then(response => {
+            taskCounter.decrement();
+        }).catch(err => {
+            throw err;
+        })
     }
-    const totalNOAnchors = await getTotalNumberOfAnchorsTest();
-    if (NO_ANCHORS !== totalNOAnchors - numberOfCurrentAnchors) {
-        throw Error("Some anchors were not created");
-    }
-})();
+};
+
+createAnchors()
