@@ -11,6 +11,7 @@ async function TransactionManager() {
 
     web3.eth.accounts.wallet.add(privateKeyBasedAccount);
     web3.eth.defaultAccount = privateKeyBasedAccount.address;
+    web3.eth.transactionPollingTimeout = 10;
 
     const contract = new web3.eth.Contract(abi, contractAddress);
 

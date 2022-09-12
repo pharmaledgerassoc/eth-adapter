@@ -53,7 +53,7 @@ async function createAnchorTest(anchorID, anchorVersion) {
         console.log(`Created anchor with id ${anchorID} and version ${anchorVersion}`);
     } catch (e) {
         console.trace(e);
-        process.exit(1);
+        // process.exit(1);
     }
 }
 
@@ -62,7 +62,7 @@ async function createAnchorTest(anchorID, anchorVersion) {
 
 const createAnchors = async () => {
     let numberOfCurrentAnchors = await getTotalNumberOfAnchorsTest();
-    const NO_ANCHORS = 200;
+    const NO_ANCHORS = 500;
     const TaskCounter = require("swarmutils").TaskCounter;
     const taskCounter = new TaskCounter(async () => {
         console.timeEnd("anchorProcessing");
@@ -80,7 +80,7 @@ const createAnchors = async () => {
         createAnchorTest(anchorId, anchorVersion).then(response => {
             taskCounter.decrement();
         }).catch(err => {
-            throw err;
+            console.log(err);
         })
     }
 };

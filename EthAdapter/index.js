@@ -19,10 +19,28 @@ function requestBodyJSONMiddleware(request, response, next) {
     });
 }
 
+function throttlerMiddleware(req, res, next) {
+    const TokenBucket = require("./services/TokenBucket");
+    const tokenBucket = new TokenBucket(200, 200, 10000);
+    tokenBucket.takeToken("*", 1, (err) => {
+        if (err) {
+            if (err === TokenBucket.ERROR_LIMIT_EXCEEDED) {
+                res.statusCode = 429;
+            } else {
+                res.statusCode = 500;
+            }
+
+            res.end();
+            return;
+        }
+        next();
+    });
+}
+
 function boot() {
     const port = 3000;
     const express = require('express');
-    
+
     let app = express();
 
     app.use(function (req, res, next) {
@@ -42,6 +60,7 @@ function boot() {
     openDSURequire('overwrite-require');
 
     app.use("*", requestBodyJSONMiddleware);
+    app.use("*", throttlerMiddleware);
 
     const createAnchorHandler = require("./controllers/createAnchor");
     app.put("/createAnchor/:anchorId/:anchorValue", createAnchorHandler);
@@ -64,7 +83,7 @@ function boot() {
     const dumpAnchors = require("./controllers/dumpAnchors");
     app.get("/dumpAnchors", dumpAnchors);
 
-    app.get("/health", function(req, res, next){
+    app.get("/health", function (req, res, next) {
         res.status(200).send();
     });
 
