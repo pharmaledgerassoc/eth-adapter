@@ -56,10 +56,12 @@ async function TransactionManager() {
                     if (statusCode === "200" || statusCode === "201") {
                         inProgressNonce[nonce] = undefined;
                         delete inProgressNonce[nonce];
-                        resolve();
+                        resolve(f.transactionHash);
                     } else {
                         const statusTranslations = require("./smartContractStatusConstants.json");
-                        reject(new Error(`Transaction ended with status code <${statusCode}> <${statusTranslations[statusCode]}>`));
+                        let error = Error(`Transaction ended with status code <${statusCode}> <${statusTranslations[statusCode]}>`);
+                        error.code = statusCode;
+                        reject(error);
                     }
                 }).catch(err => {
                 console.log(`Caught an error during ${contractMethod} with args ${JSON.stringify(args)}`);

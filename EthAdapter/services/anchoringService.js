@@ -66,14 +66,15 @@ async function createOrAppendToAnchor(anchorID, newAnchorValue, operation = "cre
 
     const txManager = await require("./../services/transactionManager").getInstance();
     let err;
+    let transactionHash;
     try {
         anchorID = parseSSI(anchorID).getIdentifier(true);
         newAnchorValue = parseSSI(newAnchorValue).getIdentifier(true);
-        await txManager.sendWriteTransaction(operation, anchorID, newAnchorValue);
+        transactionHash = await txManager.sendWriteTransaction(operation, anchorID, newAnchorValue);
     } catch (error) {
         err = error;
     }
-    callback(err);
+    callback(err, transactionHash);
 }
 
 function createAnchor(anchorID, newAnchorValue, callback) {
@@ -98,6 +99,7 @@ async function createMultipleAnchorsInput(anchors) {
 
 async function createOrUpdateMultipleAnchors(anchors, callback) {
     let error, input;
+    let transactionHash;
     try {
         input = await createMultipleAnchorsInput(anchors);
     } catch (err) {
@@ -106,12 +108,12 @@ async function createOrUpdateMultipleAnchors(anchors, callback) {
 
     try {
         const txManager = await require("./../services/transactionManager").getInstance();
-        await txManager.sendWriteTransaction("createOrUpdateMultipleAnchors", input);
+        transactionHash = await txManager.sendWriteTransaction("createOrUpdateMultipleAnchors", input);
     } catch (err) {
         error = errorWrapper("Failed createOrAppendMultipleAnchors", err);
     }
 
-    callback(error);
+    callback(error, transactionHash);
 }
 
 async function dumpAnchors(from, limit, maxSize, callback) {

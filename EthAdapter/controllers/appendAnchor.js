@@ -5,10 +5,14 @@ module.exports = function (request, response, next) {
 
     require("../services/anchoringService").appendAnchor(anchorID, anchorValue, (err, result) => {
         if (err) {
-            console.group(`appendAnchor(${anchorID}, ${anchorValue}) ended with Error:`);
+            console.group(`createAnchor(${anchorID}, ${anchorValue}) ended with Error:`);
             console.log(err);
             console.groupEnd();
-            return response.status(428).send("Smart contract invocation failed");
+            if(err.code) {
+                return response.status(428).send("Smart contract invocation failed");
+            }
+
+            return response.status(408).send("Transaction timeout.");
         }
         console.log("appendAnchor ended with success for anchor id: ", anchorID);
         return response.status(200).send(result);
