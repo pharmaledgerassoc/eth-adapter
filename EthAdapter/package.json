@@ -11,7 +11,7 @@
     "web3-eth-contract": "^1.2.9"
   },
   "devDependencies": {
-    "octopus": "git+http://github.com/privatesky/octopus.git"
+    "octopus": "git+http://github.com/opendsu/octopus.git"
   },
   "scripts": {
     "start": "node index.js",
