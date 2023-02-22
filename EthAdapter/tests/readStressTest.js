@@ -36,15 +36,33 @@ async function createNewVersionForAnchor(seedSSI, brickMapHash = "hash1", previo
     return signedHashLinkSSI1.getIdentifier();
 }
 
-async function getTotalNumberOfAnchorsTest() {
-    try {
-        const anchors = await http.fetch(`${ETH_ADAPTER_BASE_URL}/totalNumberOfAnchors`).then(res => res.text());
-        console.log(anchors);
-        return anchors;
-    } catch (e) {
-        console.trace(e);
-        process.exit(1);
-    }
+let counter = 0
+
+async function readAnchor(anchorId) {
+    return fetch(`${ETH_ADAPTER_BASE_URL}/getLastVersion/${anchorId}`).then(res => {
+        // console.log("Status code", res.status)
+        if (res.status !== 200) {
+            throw Error("Throttler limit");
+        }
+        return new Promise(async (resolve, reject) => {
+            let anchorVersion;
+            try {
+                anchorVersion = await res.text();
+            } catch (e) {
+                e.details = "True";
+                return reject(e);
+            }
+            if (!anchorVersion) {
+                return reject(Error("Content empty"));
+            }
+
+            if (anchorVersion.length < 5) {
+                return reject(Error("Invalid content"));
+            }
+
+            resolve(anchorVersion);
+        });
+    })
 }
 
 async function createAnchorTest(anchorID, anchorVersion) {
@@ -62,28 +80,39 @@ async function createAnchorTest(anchorID, anchorVersion) {
 //dumpAllAnchorsTest();
 
 const createAnchors = async () => {
-    let numberOfCurrentAnchors = await getTotalNumberOfAnchorsTest();
-    const NO_ANCHORS = 500;
+    const NO_ANCHORS = 20000;
     const TaskCounter = require("swarmutils").TaskCounter;
+    let interval;
     const taskCounter = new TaskCounter(async () => {
-        console.timeEnd("anchorProcessing");
-        const totalNOAnchors = await getTotalNumberOfAnchorsTest();
-        if (NO_ANCHORS !== totalNOAnchors - numberOfCurrentAnchors) {
-            throw Error("Some anchors were not created");
-        }
+        clearInterval(interval);
+        console.log("Finished test");
     })
     taskCounter.increment(NO_ANCHORS);
-    console.time("anchorProcessing")
-    for (let i = 0; i < NO_ANCHORS; i++) {
-        let dsuIdentifier = await createSeedSSI();
-        let anchorId = await getAnchorId(dsuIdentifier);
-        let anchorVersion = await createNewVersionForAnchor(dsuIdentifier);
-        createAnchorTest(anchorId, anchorVersion).then(response => {
-            taskCounter.decrement();
-        }).catch(err => {
-            console.log(err);
-        })
-    }
+    let dsuIdentifier = await createSeedSSI();
+    let anchorId = await getAnchorId(dsuIdentifier);
+    let anchorVersion = await createNewVersionForAnchor(dsuIdentifier);
+    console.log("AnchorID", anchorId);
+    console.log("AnchorVersion", anchorVersion);
+    createAnchorTest(anchorId, anchorVersion).then(response => {
+        console.time("anchorProcessing")
+        let noRequests = 0;
+        interval = setInterval(() => {
+            readAnchor(anchorId).then((anchorVersion) => {
+                noRequests++;
+                // console.log(anchorVersion);
+                taskCounter.decrement();
+            }).catch(err => {
+                console.log("====================================================================================")
+                console.log(err.message, err.code, noRequests);
+                console.log("====================================================================================")
+                console.timeEnd("anchorProcessing");
+                clearInterval(interval);
+            })
+
+        }, 1)
+    }).catch(err => {
+        console.log(err);
+    })
 };
 
 createAnchors()

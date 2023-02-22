@@ -20,12 +20,34 @@ function requestBodyJSONMiddleware(request, response, next) {
 }
 
 function boot() {
-    const port = 3000;
+    const configPath = "./config.json"
+    const TokenBucket = require("./services/TokenBucket");
+    let config = {
+        port: 3000,
+        writeTokenBucket: {
+            startTokens: 180,
+            tokenValuePerTime: 180,
+            unitOfTime: 3000
+        },
+        readTokenBucket: {
+            startTokens: 10000,
+            tokenValuePerTime: 10,
+            unitOfTime: 10
+        }
+    }
+    try {
+        config = require(configPath);
+    } catch (e) {
+        console.log("Could not find config file", configPath);
+        console.log("Using default configuration");
+    }
     const express = require('express');
 
     let app = express();
-    const TokenBucket = require("./services/TokenBucket");
-    const tokenBucket = new TokenBucket(200, 200, 10000);
+    app.set('etag', false); // turn off
+
+    const writeTokenBucket = new TokenBucket(config.writeTokenBucket.startTokens, config.writeTokenBucket.tokenValuePerTime, config.writeTokenBucket.unitOfTime);
+    const readTokenBucket = new TokenBucket(config.readTokenBucket.startTokens, config.readTokenBucket.tokenValuePerTime, config.readTokenBucket.unitOfTime);
 
     app.use(function (req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,55 +62,62 @@ function boot() {
     require("./services/transactionManager").getInstance();
 
     //this require needs to be called after the web3 library require to don't interfere
-    require("../../privatesky/psknode/bundles/openDSU");
+    require("../../opendsu-sdk/psknode/bundles/openDSU");
     openDSURequire('overwrite-require');
 
     app.use(requestBodyJSONMiddleware);
 
-    function throttlerMiddleware(req, res, next) {
-        tokenBucket.takeToken("*", 1, (err) => {
-            if (err) {
-                if (err === TokenBucket.ERROR_LIMIT_EXCEEDED) {
-                    res.statusCode = 429;
-                } else {
-                    res.statusCode = 500;
-                }
+    function getThrottlerMiddleware(tokenBucket) {
+        return function throttlerMiddleware(req, res, next) {
+            tokenBucket.takeToken("*", 1, (err) => {
+                if (err) {
+                    if (err === TokenBucket.ERROR_LIMIT_EXCEEDED) {
+                        res.statusCode = 429;
+                    } else {
+                        res.statusCode = 500;
+                    }
 
-                res.end();
-                return;
-            }
-            next();
-        });
+                    res.end();
+                    return;
+                }
+                next();
+            });
+        }
     }
 
-    app.use(throttlerMiddleware);
-
     const createAnchorHandler = require("./controllers/createAnchor");
+    app.put("/createAnchor/:anchorId/:anchorValue", getThrottlerMiddleware(writeTokenBucket));
     app.put("/createAnchor/:anchorId/:anchorValue", createAnchorHandler);
 
     const appendAnchorHandler = require("./controllers/appendAnchor");
+    app.put("/appendAnchor/:anchorId/:anchorValue", getThrottlerMiddleware(writeTokenBucket));
     app.put("/appendAnchor/:anchorId/:anchorValue", appendAnchorHandler);
 
     const createOrUpdateMultipleAnchorsHandler = require("./controllers/createOrUpdateMultipleAnchors");
+    app.put("/createOrAppendMultipleAnchors", getThrottlerMiddleware(writeTokenBucket));
     app.put("/createOrAppendMultipleAnchors", createOrUpdateMultipleAnchorsHandler);
 
     const getAllVersionsHandler = require("./controllers/getAllVersions");
+    app.get("/getAllVersions/:anchorId", getThrottlerMiddleware(readTokenBucket));
     app.get("/getAllVersions/:anchorId", getAllVersionsHandler);
 
     const getLastVersionHandler = require("./controllers/getLastVersion");
+    app.get("/getLastVersion/:anchorId", getThrottlerMiddleware(readTokenBucket));
     app.get("/getLastVersion/:anchorId", getLastVersionHandler);
 
     const totalNumberOfAnchors = require("./controllers/totalNumberOfAnchors");
+    app.get("/totalNumberOfAnchors", getThrottlerMiddleware(readTokenBucket));
     app.get("/totalNumberOfAnchors", totalNumberOfAnchors);
 
     const dumpAnchors = require("./controllers/dumpAnchors");
+    app.get("/dumpAnchors", getThrottlerMiddleware(readTokenBucket));
     app.get("/dumpAnchors", dumpAnchors);
 
     app.get("/health", function (req, res, next) {
-        res.status(200).send();
+        res.status(200).send("Running");
     });
 
-    let server = app.listen(port);
+    let server = app.listen(config.port);
 
     process.on('SIGTERM', () => {
         console.log('SIGTERM signal received: closing ETH Adapter');
@@ -97,7 +126,7 @@ function boot() {
         });
     });
 
-    console.log('EthAdapter is ready. Listening on port', port);
+    console.log('EthAdapter is ready. Listening on port', config.port);
 }
 
 boot();

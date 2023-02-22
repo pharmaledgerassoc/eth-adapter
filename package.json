@@ -1,6 +1,6 @@
 {
     "name": "ethereum-anchoring",
-    "version": "v1.0.5",
+    "version": "v1.0.7",
     "description": "[![SmartContractTests Actions Status](https://github.com/PharmaLedger-IMI/ethereum-anchoring/workflows/SmartContractTests/badge.svg)](https://github.com/PharmaLedger-IMI/ethereum-anchoring/actions)",
     "main": "index.js",
     "scripts": {
@@ -13,7 +13,7 @@
     "author": "",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/PharmaLedger-IMI/ethereum-anchoring/issues"
+        "url": "https://github.com/opendsu/eth-adapter/issues"
     },
-    "homepage": "https://github.com/PharmaLedger-IMI/ethereum-anchoring#readme"
+    "homepage": "https://github.com/opendsu/eth-adapter/issues"
 }
