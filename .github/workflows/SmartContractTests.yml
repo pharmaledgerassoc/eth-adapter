@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: PharmaLedger-IMI/epi-workspace
+          repository: pharmaledgerassoc/epi-workspace
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
