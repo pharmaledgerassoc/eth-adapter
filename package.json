@@ -1,14 +1,14 @@
 {
     "name": "ethereum-anchoring",
     "version": "v1.1.0",
-    "description": "[![SmartContractTests Actions Status](https://github.com/PharmaLedger-IMI/ethereum-anchoring/workflows/SmartContractTests/badge.svg)](https://github.com/PharmaLedger-IMI/ethereum-anchoring/actions)",
+    "description": "",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/PharmaLedger-IMI/ethereum-anchoring.git"
+        "url": "git+https://github.com/OpenDSU/eth-adapter.git"
     },
     "author": "",
     "license": "MIT",

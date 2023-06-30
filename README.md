@@ -10,15 +10,15 @@ This repository provides smart contract and adapter implementations to be used i
 ## Versions and compabitilities
 ETH Adapter needs to be in sync the [OpenDSU](https://opendsu.com/) implementation used in different PharmaLedger Workspaces (use cases) in order to ensure a strong Blockchain anchoring foundation. 
 
-For example, the **latest ETH Adapter** versions needs to be paired with **[>= v1.1.0 ePI-workspace](https://github.com/PharmaLedger-IMI/epi-workspace/releases)**. For older [ePI-workspace](https://github.com/PharmaLedger-IMI/epi-workspace) releases use the [older version](https://github.com/PharmaLedger-IMI/eth-adapter/tree/62c61b45c9ff44900d31d79d1efc803e024c3589).
+For example, the **latest ETH Adapter** versions needs to be paired with **[>= v1.1.0 ePI-workspace](https://github.com/pharmaledgerassoc/epi-workspace/releases)**. For older [ePI-workspace](https://github.com/pharmaledgerassoc/epi-workspace) releases use the [older version](https://github.com/OpenDSU/eth-adapter/tree/a36774c624dbe360f4d2bc8e5ca653db4ecd21a9).
 
 ## Repository structure
-The repository strucure is based mostly on two main folders: one folder containing the [smart contract](https://github.com/PharmaLedger-IMI/eth-adapter/blob/master/SmartContracts) that needs to be deploy into the blockchain network and in the other one the [Adapter](https://github.com/PharmaLedger-IMI/eth-adapter/tree/master/EthAdapter) that is in sync with the smart contract APIs. The smart contract and adapter source code are tied together into the same repository due to the fact that there is is a strong coupling between them.
+The repository strucure is based mostly on two main folders: one folder containing the [smart contract](https://github.com/OpenDSU/eth-adapter/blob/master/SmartContracts) that needs to be deploy into the blockchain network and in the other one the [Adapter](https://github.com/OpenDSU/eth-adapter/tree/master/EthAdapter) that is in sync with the smart contract APIs. The smart contract and adapter source code are tied together into the same repository due to the fact that there is is a strong coupling between them.
 
 ## Smart Contract
 The ETH Adapter needs a custom smart contract in order to be able to ensure the anchor creation, anchor version management and other processes that are used in and by the [OpenDSU](https://opendsu.com/) technology.  To understand the OpenDSU concepts used in the smart contract and the role of the smart contract please refer to the [OpenDSU website](https://opendsu.com/).
-The exact smart contract source code is available by accessing the following [link](https://github.com/PharmaLedger-IMI/eth-adapter/blob/master/SmartContracts/contracts/Anchoring.sol).
-In the [Smart contract folder](https://github.com/PharmaLedger-IMI/eth-adapter/blob/master/SmartContracts)  besides the smart contract source code there are also docker file and Kubernetes templates examples that can be used in order to ensure a quick deployment into the Blockchain network. 
+The exact smart contract source code is available by accessing the following [link](https://github.com/OpenDSU/eth-adapter/blob/master/SmartContracts/contracts/Anchoring.sol).
+In the [Smart contract folder](https://github.com/OpenDSU/eth-adapter/blob/master/SmartContracts)  besides the smart contract source code there are also docker file and Kubernetes templates examples that can be used in order to ensure a quick deployment into the Blockchain network. 
 The smart contract deployment is handled via [truffle migrate](https://trufflesuite.com/docs/truffle/getting-started/running-migrations.html)
 
 ### Smart contract deployment
@@ -32,7 +32,7 @@ docker push pharmaledger/anchor_smart:latest
 ```
 For demo purposes we used [hub.docker.com](https://hub.docker.com/) repository but any docker image repository can be used if needed. The image build process can be skipped if you are happy with the images published into **phrmaledger** account. Keep in mind that some image tags can be intermediary builds and may or not contain unstable code.
 
-Now that you have your docker images published and ready we need to review and customize the Kubernetes resource example files. These files are available into the [Smart contracts/K8 folder](https://github.com/PharmaLedger-IMI/eth-adapter/tree/master/SmartContracts/K8)
+Now that you have your docker images published and ready we need to review and customize the Kubernetes resource example files. These files are available into the [Smart contracts/K8 folder](https://github.com/OpenDSU/eth-adapter/tree/master/SmartContracts/K8)
 
 Let's start with **anchor-configmap.yaml** file where you need to provide the ETH node account address that will be used in order to deploy the smart contract, the IP address and port of the ETH node. Please, make sure that the ETH node that you will use to deploy the smart contract is accessible from the location where you will deploy the docker image that we previous built and published.
 
@@ -108,7 +108,7 @@ Once the customization is done for the **anchor_smart.yaml** save it and deploy 
 Now check the logs for the newly Kubernetes Pod called new-anchorsmart and check the truffle migration status, progress and out. If everything goes well you will be able to see into the log the newly deployed smart contract address that you will need when doing the Adapter deployment process.
 
 ## Adapter
-The Adapter represents a standalone HTTP server that is able to make calls to the [smart contract](https://github.com/PharmaLedger-IMI/eth-adapter/blob/master/SmartContracts/contracts/Anchoring.sol) in the name of a pre-configured ETH account by knowing the smart contract address and [ABI](https://docs.soliditylang.org/en/v0.5.3/abi-spec.html). Each smart contract call is signed with a private key of an ETH account. The smart contract address, ABI and ETH account identification details needs to be provided by configuration. The smart contract address and ABI are obtained after the deployment of the contract into the Blockchain network.
+The Adapter represents a standalone HTTP server that is able to make calls to the [smart contract](https://github.com/OpenDSU/eth-adapter/blob/master/SmartContracts/contracts/Anchoring.sol) in the name of a pre-configured ETH account by knowing the smart contract address and [ABI](https://docs.soliditylang.org/en/v0.5.3/abi-spec.html). Each smart contract call is signed with a private key of an ETH account. The smart contract address, ABI and ETH account identification details needs to be provided by configuration. The smart contract address and ABI are obtained after the deployment of the contract into the Blockchain network.
 
 ### Adapter deployment
 In order to prepare the Adapter deployment you first of all need to make sure that you have a smart contract deployed into the Blockchain network and know its address and ABI. Also you will need to have a ETH Account that you control, meaning that you have its address and private key.
@@ -121,7 +121,7 @@ docker build --no-cache -t apiadapter -f dockerfile-dev . --network=host
 docker tag apiadapter:latest pharmaledger/apiadapter:latest
 docker push pharmaledger/apiadapter:latest
 ```
-Now that you have your docker images published and ready we need to review and customize the Kubernetes resource example files. These files are available into the [EthAdapter/k8s](https://github.com/PharmaLedger-IMI/eth-adapter/tree/master/EthAdapter/k8s)
+Now that you have your docker images published and ready we need to review and customize the Kubernetes resource example files. These files are available into the [EthAdapter/k8s](https://github.com/OpenDSU/eth-adapter/tree/master/EthAdapter/k8s)
 Review and customize by needs the **ethadapter-configmap.yaml** file.
 ```
 apiVersion: v1

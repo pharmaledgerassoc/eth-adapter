@@ -5,7 +5,7 @@ const options = {gasLimit: 8000000000};
 const web3 = new Web3(ganache.provider(options));
 
 //opendsu
-require("../../../opendsu-sdk/psknode/bundles/openDSU");
+require("../../../opendsu-sdk/builds/output/openDSU");
 openDSURequire('overwrite-require');
 const opendsuutils = require("../../EthAdapter/utils/opendsuutils");
 const opendsu = openDSURequire("opendsu");
