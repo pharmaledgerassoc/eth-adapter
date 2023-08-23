@@ -199,7 +199,7 @@ contract Anchoring {
     }
 
     function totalNumberOfAnchors() public returns (uint256){
-        return indexedAnchors.length;
+        return 0x00;
     }
 
     function splitString(string memory str, bytes1 splitChar) private returns (bytes[] memory){
