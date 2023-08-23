@@ -198,7 +198,7 @@ contract Anchoring {
         return anchors;
     }
 
-    function totalNumberOfAnchors() public returns (uint){
+    function totalNumberOfAnchors() public view returns (uint256){
         return indexedAnchors.length;
     }
 
