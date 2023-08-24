@@ -4,7 +4,7 @@ const defaultGasValue = 30000000;
 
 async function TransactionManager() {
     const self = {};
-    const {Web3} = require('web3');
+    const Web3 = require('web3');
     const web3 = new Web3(new Web3.providers.HttpProvider(rpcAddress));
 
     const privateKeyBasedAccount = web3.eth.accounts.privateKeyToAccount(privateKey);
