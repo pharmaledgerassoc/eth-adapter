@@ -73,8 +73,10 @@ function boot() {
                 if (err) {
                     if (err === TokenBucket.ERROR_LIMIT_EXCEEDED) {
                         res.statusCode = 429;
+                        console.info(`Returning statusCode 429 on ${req.url}`);
                     } else {
                         res.statusCode = 500;
+                        console.info(`Returning statusCode 500 on ${req.url}`);
                     }
 
                     res.end();

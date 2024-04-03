@@ -8,9 +8,10 @@ module.exports = function (request, response, next) {
             console.log(err);
             console.groupEnd();
             if (err.code) {
+                console.info(`Returning statusCode 428 on ${request.url}`);
                 return response.status(428).send("Smart contract invocation failed");
             }
-
+            console.info(`Returning statusCode 408 on ${request.url}`);
             return response.status(408).send("Transaction timeout.");
         }
         console.log("response createOrAppendMultipleAnchors 200");
