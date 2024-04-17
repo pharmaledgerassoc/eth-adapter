@@ -8,7 +8,7 @@ module.exports = function (request, response, next) {
             console.group(`createAnchor(${anchorID}, ${anchorValue}) ended with Error:`);
             console.log(err);
             console.groupEnd();
-            if(err.code) {
+            if (err.code) {
                 console.info(`Returning statusCode 428 on ${request.url}`);
                 return response.status(428).send("Smart contract invocation failed");
             }

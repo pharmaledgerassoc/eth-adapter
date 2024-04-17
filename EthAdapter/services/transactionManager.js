@@ -1,5 +1,5 @@
 let config = require("./../utils/config");
-let {rpcAddress, contractAddress, abi, accountPrivateKey:privateKey} = config;
+let {rpcAddress, contractAddress, abi, accountPrivateKey: privateKey} = config;
 const defaultGasValue = 30000000;
 
 async function TransactionManager() {
@@ -16,6 +16,7 @@ async function TransactionManager() {
     const contract = new web3.eth.Contract(abi, contractAddress);
 
     let readingNoncePromise;
+
     async function readLatestNonce() {
         if (!readingNoncePromise) {
             readingNoncePromise = new Promise((resolve, reject) => {
@@ -23,11 +24,11 @@ async function TransactionManager() {
                     .then(resolve)
                     .catch(reject);
             });
-        }else{
+        } else {
             // another initialization can be in progress in the same time. we need to delay it a bit this one
-            try{
+            try {
                 await readingNoncePromise;
-            }catch(err){
+            } catch (err) {
                 //err is not relevant for us
             }
             //we reset the flag just to be able to recall the same fnc
@@ -71,7 +72,7 @@ async function TransactionManager() {
         });
     }
 
-    self.sendReadTransaction = function(contractMethod, ...args){
+    self.sendReadTransaction = function (contractMethod, ...args) {
         return new Promise((resolve, reject) => {
             contract.methods[contractMethod](...args)
                 .call()

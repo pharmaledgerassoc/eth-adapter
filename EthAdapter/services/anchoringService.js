@@ -1,15 +1,15 @@
 const ethUtils = require("../utils/eth");
 const {parseSSI, errorWrapper} = require("../utils/opendsuutils");
 
-function ensureResultIsEncoded(result){
-    if(Array.isArray(result)){
-        result = result.map(item=>{
+function ensureResultIsEncoded(result) {
+    if (Array.isArray(result)) {
+        result = result.map(item => {
             return parseSSI(item).getIdentifier();
         });
         return result;
     }
 
-    if(result){
+    if (result) {
         return parseSSI(result).getIdentifier();
     }
 }

@@ -1,5 +1,5 @@
-
 # Smart Contracts
+
 Current available smart contracts : anchoringSC
 
 # anchoringSC Smart contract

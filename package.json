@@ -1,19 +1,19 @@
 {
-    "name": "ethereum-anchoring",
-    "version": "v1.2.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/OpenDSU/eth-adapter.git"
-    },
-    "author": "",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/opendsu/eth-adapter/issues"
-    },
-    "homepage": "https://github.com/opendsu/eth-adapter/issues"
+  "name": "ethereum-anchoring",
+  "version": "v1.2.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenDSU/eth-adapter.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opendsu/eth-adapter/issues"
+  },
+  "homepage": "https://github.com/opendsu/eth-adapter/issues"
 }
