@@ -6,6 +6,7 @@ This repository provides smart contract and adapter implementations to be used i
 2. [Repository structure](#repository-structure)
 3. [Smart contract](#smart-contract)
 4. [Adapter](#adapter)
+5. [Migration script](#Migration-script)
 
 ## Versions and compabitilities
 ETH Adapter needs to be in sync the [OpenDSU](https://opendsu.com/) implementation used in different PharmaLedger Workspaces (use cases) in order to ensure a strong Blockchain anchoring foundation. 
@@ -201,3 +202,69 @@ spec:
 ```
 Make sure that you understand that this Adapter is exposed to the INTERNET by that fact that we used a LoadBalancer type of service in the above yaml example file. If you will deploy the APIHUB into the same Kubernetes cluster you may want to change the LoadBalancer into a ClusterIP.
 After the customization make sure to save the file and deploy it into your Kubernetes cluster.
+
+## Migration script
+The Python script (migrate_anchors.py) is designed to facilitate the migration of anchors between blockchain instances. It provides functionality to export anchors from a source blockchain, import anchors to a destination blockchain, or perform both operations in sequence.
+### Prerequisites
+
+Python 3.6 or higher
+
+### Setup and Usage
+### 1. Install Python
+#### Windows
+
+Download the installer from python.org
+Run the installer and make sure to check "Add Python to PATH"
+
+#### macOS
+
+Install Homebrew if not already installed: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+Install Python: `brew install python`
+
+#### Linux
+
+Most distributions come with Python pre-installed
+If not, use your distribution's package manager. For example, on Ubuntu or Debian:
+```
+sudo apt-get update
+sudo apt-get install python3
+```
+
+
+### 2. Create a Virtual Environment
+Open a terminal/command prompt in the project directory and run:
+```
+python -m venv venv
+```
+
+### 3. Activate the Virtual Environment
+#### Windows
+```
+.\venv\Scripts\activate
+```
+#### macOS and Linux
+```
+source venv/bin/activate
+```
+
+### 4. Install Requirements
+```
+pip install -r requirements.txt
+```
+
+### 5. Run the Script
+```
+python migrate_anchors.py
+```
+
+### Script Options
+When you run the script, you'll be presented with four options:
+
+- Exit: Terminates the script.
+- Export from blockchain: Exports anchors from a source blockchain and saves them to a JSON file.
+- Import to blockchain: Imports anchors from a JSON file to a destination blockchain.
+- Both export and import: Performs both export and import operations in sequence.
+
+For options 1-3, you'll be prompted to provide necessary information such as blockchain URLs and file names.
+#### Note
+Ensure you have the necessary permissions and access to the blockchain instances you're working with. Always verify the integrity of the data after migration.
