@@ -216,6 +216,8 @@ The Python script (migrate_anchors.py) is designed to facilitate the migration o
 ### Prerequisites
 
 Python 3.6 or higher
+A working instance of blockchain.
+Ensure you have the necessary permissions and access to the blockchain instances you're working with. 
 
 ### Setup and Usage
 ### 1. Install Python
@@ -286,6 +288,5 @@ When you run the script, you'll be presented with four options:
 
 For options 1-3, you'll be prompted to provide necessary information such as blockchain URLs and file names.
 #### Note
-- Ensure you have the necessary permissions and access to the blockchain instances you're working with. 
 - Always verify the integrity of the data after migration.
 - Verify that the JSON file is valid.
