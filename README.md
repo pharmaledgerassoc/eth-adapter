@@ -287,6 +287,19 @@ When you run the script, you'll be presented with four options:
 - Both export and import: Perform both export and import operations in sequence.
 
 For options 1-3, you'll be prompted to provide necessary information such as blockchain URLs and file names.
-#### Note
-- Always verify the integrity of the data after migration.
-- Verify that the JSON file is valid.
+
+### 7. Test Plan
+
+1.  Verify Export Data Integrity:
+- After exporting data from the blockchain, validate the JSON file format
+- Compare the number of anchors in the exported file with the count returned by the API endpoint http://localhost:8080/totalNumberOfAnchors (assuming this is the port-forwarded address)
+
+2. Verify Import Success:
+- After importing data to the destination blockchain, run another export to a separate file
+- Compare the original and new export files to ensure the number of anchors matches
+- This verification confirms that the data was accurately transferred to the destination blockchain
+
+
+3. Final Integration Test:
+- Copy the ePI app data to the destination blockchain system
+- Verify the data integrity and functionality after the migration is complete
