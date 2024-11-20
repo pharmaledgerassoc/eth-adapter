@@ -211,7 +211,7 @@ It's particularly useful when there's a need to transfer data from a production 
 
 #### Overview
 
-The Python script (migrate_anchors.py) is designed to facilitate the migration of anchors between blockchain instances. It provides functionality to export anchors from a source blockchain, import anchors to a destination blockchain, or perform both operations in sequence.
+The Python script (migrate_anchors.py) is designed to facilitate the migration of anchors between blockchain instances or to a filesystem storage. It provides functionality to export anchors from a source blockchain and import them to either a destination blockchain or save them as files in a filesystem.
 
 ### Prerequisites
 
@@ -283,10 +283,13 @@ When you run the script, you'll be presented with four options:
 
 - Exit: Terminates the script.
 - Export from blockchain: Exports anchors from a source blockchain and saves them to a JSON file. 
-- Import to blockchain: Imports anchors from a JSON file to a destination blockchain.
+- Import to blockchain: Imports anchors from a JSON file to either:
+  - A destination blockchain
+  - A filesystem storage where:
+    - Each anchor ID is base64 encoded and used as the filename
 - Both export and import: Perform both export and import operations in sequence.
 
-For options 1-3, you'll be prompted to provide necessary information such as blockchain URLs and file names.
+For options 1-3, you'll be prompted to provide necessary information such as blockchain URLs, file names, or folder paths for filesystem storage.
 
 ### 7. Test Plan
 
@@ -295,10 +298,15 @@ For options 1-3, you'll be prompted to provide necessary information such as blo
 - Compare the number of anchors in the exported file with the count returned by the API endpoint http://localhost:8080/totalNumberOfAnchors (assuming this is the port-forwarded address)
 
 2. Verify Import Success:
+#### For Blockchain Storage:
 - After importing data to the destination blockchain, run another export to a separate file
 - Compare the original and new export files to ensure the number of anchors matches
 - This verification confirms that the data was accurately transferred to the destination blockchain
 
+#### For Filesystem Storage:
+- Verify that each anchor ID has been correctly base64 encoded as filename
+- Check that file contents match exactly with the original anchor values
+- Confirm the number of files matches the number of anchors in the source JSON file
 
 3. Final Integration Test:
 - Copy the ePI app data to the destination blockchain system

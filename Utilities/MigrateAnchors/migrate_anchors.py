@@ -1,3 +1,4 @@
+import base64
 import os
 import sys
 
@@ -39,6 +40,41 @@ def save_to_json(data, filename="anchors_dump.json"):
     with open(filename, 'w') as f:
         json.dump(data, f, indent=2)
     print(f"Anchors saved to {filename}")
+
+
+def save_to_filesystem(anchors, base_folder="anchors"):
+    """
+    Save anchors to individual files in the specified folder.
+    Each anchor ID is base64 encoded for the filename, and each value is written on a separate line.
+    Returns tuple (success_count, error_count, error_messages)
+    """
+    # Create the base folder if it doesn't exist
+    try:
+        os.makedirs(base_folder, exist_ok=True)
+    except Exception as e:
+        print(f"Failed to create directory {base_folder}: {str(e)}")
+        return 0, 0, []
+
+    total_saved = 0
+    total_errors = 0
+    error_messages = []
+    anchor_id = 0
+
+    for anchor in anchors:
+        anchor_id = anchor['anchorId']
+        safe_filename = base64.urlsafe_b64encode(anchor_id.encode('utf-8')).decode('utf-8').rstrip('=')
+        file_path = os.path.join(base_folder, safe_filename)
+
+        try:
+            with open(file_path, 'w') as f:
+                for value in anchor['anchorValues']:
+                    f.write(json.dumps(value)[1:-1] + "\n")
+            total_saved += 1
+        except Exception as e:
+            total_errors += 1
+            error_messages.append(f"Error saving anchor {anchor_id}: {str(e)}")
+
+    return total_saved, total_errors, error_messages
 
 
 def get_valid_filename(check_exists=False):
@@ -125,9 +161,64 @@ def create_or_append_multiple_anchors(anchors, chunk_size=1):
         time.sleep(3)  # Add a small delay to avoid overwhelming the API
 
 
+def handle_export(filename):
+    global source_url
+    source_url = input("Enter source blockchain URL (default: http://localhost:8080): ") or "http://localhost:8080"
+
+    total_anchors = get_total_anchors()
+    print("Dumping anchors...")
+    anchors = dump_anchors(total_anchors)
+    save_to_json(anchors, filename)
+    print(f"Export complete. Anchors saved to {filename}")
+    return anchors
+
+
+def handle_import(filename, anchors=None):
+    if anchors is None:
+        anchors = read_from_json(filename)
+        if not anchors:
+            print("Failed to read anchors from file. Exiting.")
+            return None
+
+    print(f"Total anchors to import: {len(anchors)}")
+
+    while True:
+        storage_type = input("Choose storage type (1: Blockchain, 2: FileSystem): ").strip()
+        if storage_type in ['1', '2']:
+            break
+        print("Invalid choice. Please enter 1 or 2.")
+
+    if storage_type == '1':
+        global destination_url
+        destination_url = input(
+            "Enter destination blockchain URL (default: http://localhost:8080): ") or "http://localhost:8080"
+        print("Uploading anchors to blockchain...")
+        create_or_append_multiple_anchors(anchors)
+        print("Import to blockchain complete!")
+    else:
+        folder_name = "anchors"
+        print(f"Saving anchors to filesystem in folder '{folder_name}'...")
+
+        success_count, error_count, error_messages = save_to_filesystem(anchors, folder_name)
+
+        # Report results
+        if error_count > 0:
+            print("\nEncountered errors while saving:")
+            for error in error_messages:
+                print(error)
+
+            if success_count > 0:
+                print(
+                    f"\nPartially completed: Successfully saved {success_count} anchors, failed to save {error_count} anchors.")
+            else:
+                print("\nFailed: No anchors were saved successfully.")
+        else:
+            print(f"\nSuccess: All {success_count} anchors were saved successfully!")
+
+
 def migrate_anchors():
     while True:
-        print("Choose operation:")
+        print("\nChoose operation:")
         print("0. Exit")
         print("1. Export from blockchain")
         print("2. Import to blockchain")
@@ -142,54 +233,15 @@ def migrate_anchors():
         else:
             print("Invalid choice. Please enter 0, 1, 2, or 3.")
 
-    # Get file name
-    if choice == '2':
-        filename = get_valid_filename(check_exists=True)
-    else:
-        filename = get_valid_filename()
+    filename = get_valid_filename(check_exists=(choice == '2'))
 
+    # Handle operations based on choice
+    anchors = None
     if choice in ['1', '3']:
-        global source_url
-        source_url = input("Enter source blockchain URL (default: http://localhost:8080): ") or "http://localhost:8080"
-        source_url = source_url
+        anchors = handle_export(filename)
 
     if choice in ['2', '3']:
-        global destination_url
-        destination_url = input(
-            "Enter destination blockchain URL (default: http://localhost:8080): ") or "http://localhost:8080"
-        destination_url = destination_url
-
-    if choice == '1':  # Export only
-        total_anchors = get_total_anchors()
-        print("Dumping anchors...")
-        anchors = dump_anchors(total_anchors)
-        save_to_json(anchors, filename)
-        print(f"Export complete. Anchors saved to {filename}")
-
-    elif choice == '2':  # Import only
-        anchors = read_from_json(filename)
-        if not anchors:
-            print("Failed to read anchors from file. Exiting.")
-            return
-        print(f"Total anchors to import: {len(anchors)}")
-        print("Uploading anchors to blockchain...")
-        create_or_append_multiple_anchors(anchors)
-        print("Import complete!")
-
-    elif choice == '3':  # Both export and import
-        total_anchors = get_total_anchors()
-        print("Dumping anchors...")
-        anchors = dump_anchors(total_anchors)
-        save_to_json(anchors, filename)
-        print(f"Export complete. Anchors saved to {filename}")
-
-        print(f"Total anchors to import: {len(anchors)}")
-        print("Uploading anchors to new blockchain...")
-        create_or_append_multiple_anchors(anchors)
-        print("Migration complete!")
-
-    else:
-        print("Invalid choice. Exiting.")
+        handle_import(filename, anchors)
 
 
 if __name__ == "__main__":
