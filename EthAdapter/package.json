@@ -4,10 +4,10 @@
   "description": "OpenDSU Ethereum Adapter",
   "main": "index.js",
   "dependencies": {
-    "ethers": "^5.0.23",
-    "express": "^4.17.1",
-    "web3": "^1.2.9",
     "ethereumjs-wallet": "^1.0.2",
+    "ethers": "^6.13.4",
+    "express": "^4.21.1",
+    "web3": "^1.2.9",
     "web3-eth-contract": "^1.2.9"
   },
   "devDependencies": {
