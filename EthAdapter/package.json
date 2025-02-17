@@ -4,11 +4,11 @@
   "description": "OpenDSU Ethereum Adapter",
   "main": "index.js",
   "dependencies": {
-    "ethereumjs-wallet": "^1.0.2",
+    "@ethereumjs/wallet": "^2.0.4",
     "ethers": "^6.13.4",
     "express": "^4.21.1",
-    "web3": "^1.2.9",
-    "web3-eth-contract": "^1.2.9"
+    "web3": "^4.16.0",
+    "web3-eth-contract": "^4.7.2"
   },
   "devDependencies": {
     "octopus": "git+http://github.com/opendsu/octopus.git"
